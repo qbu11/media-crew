@@ -86,16 +86,13 @@ class ContentStatus(str, Enum):
 
 def sanitize_string(value: str) -> str:
     """
-    清洗字符串：移除 HTML 标签，转义特殊字符。
+    清洗字符串：移除 HTML 标签，不转义（保持可读性）。
     """
     if not value:
         return ""
 
     # 移除 HTML 标签
     clean = re.sub(r"<[^>]+>", "", value)
-
-    # 转义 HTML 实体
-    clean = html.escape(clean)
 
     # 移除控制字符
     clean = re.sub(r"[\x00-\x1f\x7f-\x9f]", "", clean)

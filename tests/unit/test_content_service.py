@@ -9,7 +9,21 @@ from datetime import datetime
 
 from src.services.content_service import ContentService
 from src.schemas.validation import ContentStatus
-from src.core.error_handling import assert_success_result, assert_error_result
+
+
+def assert_success_result(result):
+    """断言结果成功。"""
+    assert result.success is True
+    assert result.data is not None
+    assert result.error is None
+
+
+def assert_error_result(result, error_code: str = None):
+    """断言结果失败。"""
+    assert result.success is False
+    assert result.error is not None
+    if error_code:
+        assert result.error_code == error_code
 
 
 @pytest.mark.unit
