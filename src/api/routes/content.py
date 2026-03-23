@@ -90,7 +90,7 @@ async def generate_content(brief: ContentBrief) -> dict[str, Any]:
             continue
 
         tool_class = PLATFORM_REGISTRY[platform]
-        tool = tool_class()
+        tool_class()
 
         # Generate mock content (replace with actual AI generation)
         content_id = f"{platform}-{datetime.now().strftime('%Y%m%d%H%M%S')}"

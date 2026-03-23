@@ -35,7 +35,7 @@ async def get_search_status() -> dict[str, Any]:
     status = {}
     for platform, searcher_class in PLATFORM_SEARCHERS.items():
         try:
-            searcher = searcher_class()
+            searcher_class()
             status[platform] = {
                 "available": True,
                 "search": True,

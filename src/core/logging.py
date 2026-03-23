@@ -1,8 +1,8 @@
 """Logging configuration."""
 
 import logging
-import sys
 from pathlib import Path
+import sys
 
 from src.core.config import settings
 

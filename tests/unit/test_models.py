@@ -280,6 +280,7 @@ class TestContentModel:
             topic="AI创业指南",
             content_type="article",
             platforms=["xiaohongshu", "wechat"],
+            user_id="user-001",
         )
 
         test_session.add(content)
@@ -303,6 +304,7 @@ class TestContentModel:
             topic="热门内容",
             content_type="article",
             platforms=["xiaohongshu"],
+            user_id="user-001",
             total_views=15000,
             total_likes=1200,
             total_comments=89,
@@ -476,7 +478,7 @@ class TestPlatformPostModel:
             post_url="https://xiaohongshu.com/explore/64a1b2c3d4e5f6g7h8i9j0",
             initial_views=0,
             initial_likes=0,
-            metadata={"source": "api"},
+            post_metadata={"source": "api"},
         )
 
         test_session.add(post)

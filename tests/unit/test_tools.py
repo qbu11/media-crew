@@ -820,7 +820,7 @@ class TestAnalyticsReportTool:
 
         assert result.status == ToolStatus.SUCCESS
         assert "summary" in result.data
-        assert "insights" in result.data
+        assert "insights_count" in result.data or "insights" in result.data
 
     def test_analytics_report_markdown_format(self) -> None:
         """

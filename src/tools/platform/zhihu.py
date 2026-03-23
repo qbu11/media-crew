@@ -12,17 +12,17 @@ Safety constraints (from media-publish-zhihu skill):
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
+from ..base_tool import ToolResult, ToolStatus
 from .base import (
+    AnalyticsData,
+    AuthStatus,
     BasePlatformTool,
+    ContentType,
     PublishContent,
     PublishResult,
-    AnalyticsData,
-    ContentType,
-    AuthStatus
 )
-from ..base_tool import ToolResult, ToolStatus
 
 
 class ZhihuTool(BasePlatformTool):
@@ -56,7 +56,7 @@ class ZhihuTool(BasePlatformTool):
     article_write_url = "https://zhuanlan.zhihu.com/write"
     question_url_template = "https://www.zhihu.com/question/{}"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._auth_status = AuthStatus.NOT_AUTHENTICATED
 
@@ -78,7 +78,7 @@ class ZhihuTool(BasePlatformTool):
             self._auth_status = AuthStatus.ERROR
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Authentication failed: {str(e)}",
+                error=f"Authentication failed: {e!s}",
                 platform=self.platform
             )
 
@@ -95,7 +95,7 @@ class ZhihuTool(BasePlatformTool):
         self,
         question_url: str,
         answer: str,
-        question_id: str = None
+        question_id: str | None = None
     ) -> PublishResult:
         """
         Publish an answer to a Zhihu question.
@@ -149,7 +149,7 @@ class ZhihuTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Answer publishing failed: {str(e)}",
+                error=f"Answer publishing failed: {e!s}",
                 platform=self.platform
             )
 
@@ -157,7 +157,7 @@ class ZhihuTool(BasePlatformTool):
         self,
         title: str,
         content: str,
-        images: list[str] = None
+        images: list[str] | None = None
     ) -> PublishResult:
         """
         Publish an article to Zhihu column.
@@ -212,11 +212,11 @@ class ZhihuTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Article publishing failed: {str(e)}",
+                error=f"Article publishing failed: {e!s}",
                 platform=self.platform
             )
 
-    def publish_thought(self, content: str, images: list[str] = None) -> PublishResult:
+    def publish_thought(self, content: str, images: list[str] | None = None) -> PublishResult:
         """
         Publish a "想法" (thought/moment) to Zhihu.
 
@@ -247,7 +247,7 @@ class ZhihuTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Thought publishing failed: {str(e)}",
+                error=f"Thought publishing failed: {e!s}",
                 platform=self.platform
             )
 

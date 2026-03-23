@@ -5,11 +5,10 @@ Based on: https://github.com/qbu11/wechat-article-spider
 Uses WeChat Platform API with login credentials.
 """
 
+from datetime import datetime
 import json
 import shutil
 import subprocess
-from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel

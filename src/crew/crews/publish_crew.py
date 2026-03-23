@@ -4,14 +4,15 @@ Publish Crew Module
 发布线 Crew：平台适配 → 并行发布。
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from crewai import Process, Task
 from loguru import logger
 
 from src.agents import PlatformAdapter, PlatformPublisher
 from src.agents.platform_adapter import Platform
-from src.agents.platform_publisher import PublishBatch, PublishRecord, PublishStatus
+from src.agents.platform_publisher import PublishBatch
+
 from .base_crew import BaseCrew, CrewInput, CrewResult, CrewStatus
 
 
@@ -30,9 +31,9 @@ class PublishCrewInput(CrewInput):
     def __init__(
         self,
         content_id: str,
-        content_draft: Dict[str, Any],
-        target_platforms: List[str],
-        schedule_time: Optional[str] = None,
+        content_draft: dict[str, Any],
+        target_platforms: list[str],
+        schedule_time: str | None = None,
         enable_retry: bool = True,
         **kwargs,
     ):
@@ -61,8 +62,8 @@ class PublishCrewResult(CrewResult):
     def __init__(
         self,
         status: CrewStatus,
-        adapted_contents: Optional[Dict[str, Dict[str, Any]]] = None,
-        publish_records: Optional[List[Dict[str, Any]]] = None,
+        adapted_contents: dict[str, dict[str, Any]] | None = None,
+        publish_records: list[dict[str, Any]] | None = None,
         **kwargs,
     ):
         super().__init__(status=status, **kwargs)
@@ -78,7 +79,7 @@ class PublishCrewResult(CrewResult):
             "summary": self._generate_summary(),
         })
 
-    def _generate_summary(self) -> Dict[str, Any]:
+    def _generate_summary(self) -> dict[str, Any]:
         """生成发布摘要。"""
         total = len(self.publish_records)
         successful = sum(1 for r in self.publish_records if r.get("status") == "published")
@@ -99,12 +100,12 @@ class PublishCrewResult(CrewResult):
         return all(r.get("status") == "published" for r in self.publish_records)
 
     @property
-    def successful_platforms(self) -> List[str]:
+    def successful_platforms(self) -> list[str]:
         """获取发布成功的平台列表。"""
         return [r.get("platform") for r in self.publish_records if r.get("status") == "published"]
 
     @property
-    def failed_platforms(self) -> List[str]:
+    def failed_platforms(self) -> list[str]:
         """获取发布失败的平台列表。"""
         return [r.get("platform") for r in self.publish_records if r.get("status") == "failed"]
 
@@ -126,10 +127,10 @@ class PublishCrew(BaseCrew):
         verbose: bool = True,
         process: Process = Process.sequential,
         memory: bool = False,
-        max_rpm: Optional[int] = 10,
+        max_rpm: int | None = 10,
         enable_retry: bool = True,
         max_retries: int = 3,
-        llm: Optional[str] = None,
+        llm: str | None = None,
     ):
         """
         初始化 PublishCrew。
@@ -152,8 +153,8 @@ class PublishCrew(BaseCrew):
         self.enable_retry = enable_retry
         self.max_retries = max_retries
         self.llm = llm
-        self._adapter_agent: Optional[Any] = None
-        self._publisher_agents: Dict[str, Any] = {}
+        self._adapter_agent: Any | None = None
+        self._publisher_agents: dict[str, Any] = {}
 
     def get_crew_name(self) -> str:
         """返回 Crew 名称。"""
@@ -163,7 +164,7 @@ class PublishCrew(BaseCrew):
         """返回 Crew 描述。"""
         return "发布线：平台适配 → 并行发布"
 
-    def get_agents(self) -> List[Any]:
+    def get_agents(self) -> list[Any]:
         """
         返回 Crew 的 Agent 列表。
 
@@ -196,7 +197,7 @@ class PublishCrew(BaseCrew):
 
         return agents
 
-    def get_tasks(self, inputs: CrewInput) -> List[Any]:
+    def get_tasks(self, inputs: CrewInput) -> list[Any]:
         """
         根据 Crew 输入返回任务列表。
 
@@ -289,7 +290,7 @@ class PublishCrew(BaseCrew):
                     "error_message": null
                 }}
                 """,
-                expected_output=f"JSON 格式的发布记录，包含发布状态、URL 等信息",
+                expected_output="JSON 格式的发布记录，包含发布状态、URL 等信息",
                 agent=agents[agent_idx],
                 async_execution=True,  # 并行执行
                 context=[adapt_task],
@@ -298,9 +299,9 @@ class PublishCrew(BaseCrew):
             publish_tasks.append(publish_task)
             agent_idx += 1
 
-        return [adapt_task] + publish_tasks
+        return [adapt_task, *publish_tasks]
 
-    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, Optional[str]]:
+    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, str | None]:
         """
         验证输入参数。
 
@@ -371,7 +372,7 @@ class PublishCrew(BaseCrew):
 
         return result
 
-    def _parse_outputs(self, outputs: Any) -> Dict[str, Any]:
+    def _parse_outputs(self, outputs: Any) -> dict[str, Any]:
         """
         解析 Crew 输出。
 
@@ -396,7 +397,7 @@ class PublishCrew(BaseCrew):
                     adapted_contents = adapted
 
             # 后续任务是发布任务
-            for i, task_output in enumerate(tasks_output[1:], start=1):
+            for _i, task_output in enumerate(tasks_output[1:], start=1):
                 record = self._extract_task_output(task_output)
                 if isinstance(record, dict):
                     publish_records.append(record)
@@ -406,7 +407,7 @@ class PublishCrew(BaseCrew):
 
         return result
 
-    def _extract_task_output(self, task_output: Any) -> Dict[str, Any]:
+    def _extract_task_output(self, task_output: Any) -> dict[str, Any]:
         """
         提取任务输出。
 
@@ -463,7 +464,7 @@ class PublishCrew(BaseCrew):
         cls,
         enable_retry: bool = True,
         max_retries: int = 3,
-        llm: Optional[str] = None,
+        llm: str | None = None,
         **kwargs,
     ) -> "PublishCrew":
         """
@@ -488,7 +489,7 @@ class PublishCrew(BaseCrew):
     def create_publish_batch(
         self,
         content_id: str,
-        platforms: List[str],
+        platforms: list[str],
     ) -> PublishBatch:
         """
         创建发布批次。

@@ -6,9 +6,9 @@ Reddit 发布工具
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .base import BasePlatformTool, PublishContent, PublishResult, ContentType, AuthStatus
+from .base import BasePlatformTool, ContentType, PublishContent, PublishResult
 
 
 class RedditTool(BasePlatformTool):
@@ -24,7 +24,7 @@ class RedditTool(BasePlatformTool):
     max_body_length: int = 40000  # Markdown 支持
     max_images: int = 20
     max_tags: int = 0  # Reddit 使用 flair 而非 tags
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.IMAGE_TEXT,
@@ -34,7 +34,7 @@ class RedditTool(BasePlatformTool):
     # 发布间隔
     min_publish_interval: int = 600  # 10 分钟（Reddit 严格限制）
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._cookie = self.config.get("reddit_cookie")
         self._subreddits = self.config.get("default_subreddits", [])
@@ -103,7 +103,7 @@ class RedditTool(BasePlatformTool):
             status_detail="已发布"
         )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """
         获取 Reddit Post 数据
 
@@ -149,7 +149,7 @@ class TwitterTool(BasePlatformTool):
     max_body_length: int = 280  # 字符限制（中文算2）
     max_images: int = 4
     max_tags: int = 0  # 使用 @mentions 和 #hashtags
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.IMAGE_TEXT,
@@ -157,7 +157,7 @@ class TwitterTool(BasePlatformTool):
 
     min_publish_interval: int = 60  # 1 分钟
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._cookie = self.config.get("twitter_cookie")
         self._api_key = self.config.get("twitter_api_key")
@@ -214,7 +214,7 @@ class TwitterTool(BasePlatformTool):
         # 发布单条 Tweet
         return self._publish_single(content)
 
-    def _split_to_thread(self, text: str) -> List[str]:
+    def _split_to_thread(self, text: str) -> list[str]:
         """将长文本拆分为 Thread"""
         tweets = []
         remaining = text
@@ -254,7 +254,7 @@ class TwitterTool(BasePlatformTool):
             status_detail="已发布"
         )
 
-    def _publish_thread(self, tweets: List[str], images: List[str]) -> PublishResult:
+    def _publish_thread(self, tweets: list[str], images: list[str]) -> PublishResult:
         """发布 Thread"""
         # 依次发布，每条回复前一条
         return PublishResult(
@@ -266,7 +266,7 @@ class TwitterTool(BasePlatformTool):
             status_detail=f"已发布 Thread ({len(tweets)} 条)"
         )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Tweet 数据"""
         return {
             "content_id": content_id,
@@ -298,8 +298,8 @@ class TwitterTool(BasePlatformTool):
 
     def _generate_snowflake_id(self) -> int:
         """生成 Twitter Snowflake ID"""
-        import time
         import random
+        import time
         timestamp = int(time.time() * 1000)
         return timestamp << 22 | random.randint(0, 4095)
 
@@ -317,7 +317,7 @@ class InstagramTool(BasePlatformTool):
     max_body_length: int = 2200  # Caption 限制
     max_images: int = 10  # Carousel
     max_tags: int = 30  # Hashtags
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.IMAGE,
         ContentType.VIDEO,
         ContentType.IMAGE_TEXT,
@@ -325,7 +325,7 @@ class InstagramTool(BasePlatformTool):
 
     min_publish_interval: int = 300  # 5 分钟
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._cookie = self.config.get("instagram_cookie")
         self._access_token = self.config.get("instagram_access_token")  # Graph API
@@ -419,7 +419,7 @@ class InstagramTool(BasePlatformTool):
             status_detail="已发布 Reels"
         )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Instagram Post 数据"""
         return {
             "content_id": content_id,
@@ -450,8 +450,8 @@ class InstagramTool(BasePlatformTool):
 
     def _generate_media_id(self) -> str:
         """生成 Instagram Media ID"""
-        import time
         import random
+        import time
         return f"{int(time.time() * 1000)}_{random.randint(100000000, 999999999)}"
 
 
@@ -468,7 +468,7 @@ class FacebookTool(BasePlatformTool):
     max_body_length: int = 63206
     max_images: int = 10
     max_tags: int = 50
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.VIDEO,
@@ -478,7 +478,7 @@ class FacebookTool(BasePlatformTool):
 
     min_publish_interval: int = 60
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._cookie = self.config.get("facebook_cookie")
         self._page_id = self.config.get("facebook_page_id")
@@ -524,7 +524,7 @@ class FacebookTool(BasePlatformTool):
             )
 
         # 发布到 Page 或 Group
-        target_type = content.custom_fields.get("target_type", "page")
+        content.custom_fields.get("target_type", "page")
         target_id = content.custom_fields.get("target_id", self._page_id)
 
         return PublishResult(
@@ -536,7 +536,7 @@ class FacebookTool(BasePlatformTool):
             status_detail="已发布"
         )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Facebook Post 数据"""
         return {
             "content_id": content_id,
@@ -567,8 +567,8 @@ class FacebookTool(BasePlatformTool):
 
     def _generate_post_id(self) -> str:
         """生成 Facebook Post ID"""
-        import time
         import random
+        import time
         return f"{self._page_id}_{int(time.time() * 1000)}_{random.randint(1000, 9999)}"
 
 
@@ -585,7 +585,7 @@ class ThreadsTool(BasePlatformTool):
     max_body_length: int = 500
     max_images: int = 10
     max_tags: int = 0  # 使用 mentions
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.VIDEO,
@@ -594,7 +594,7 @@ class ThreadsTool(BasePlatformTool):
 
     min_publish_interval: int = 60
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._cookie = self.config.get("threads_cookie")
         self._access_token = self.config.get("threads_access_token")
@@ -649,12 +649,12 @@ class ThreadsTool(BasePlatformTool):
             status=self._create_success_status(),
             platform=self.platform,
             content_id=self._generate_thread_id(),
-            content_url=f"https://threads.net/@user/post/xxx",
+            content_url="https://threads.net/@user/post/xxx",
             published_at=datetime.now(),
             status_detail="已发布"
         )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Threads 数据"""
         return {
             "content_id": content_id,
@@ -676,13 +676,13 @@ class ThreadsTool(BasePlatformTool):
 
     def _generate_thread_id(self) -> str:
         """生成 Threads ID"""
-        import time
         import random
+        import time
         return f"{int(time.time() * 1000)}_{random.randint(100000, 999999)}"
 
 
 # 工厂函数
-def get_overseas_platform_tool(platform: str, config: Optional[Dict[str, Any]] = None):
+def get_overseas_platform_tool(platform: str, config: dict[str, Any] | None = None):
     """获取海外平台工具实例"""
     tools = {
         "reddit": RedditTool,

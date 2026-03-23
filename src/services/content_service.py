@@ -4,15 +4,13 @@ Content Service Layer
 提供内容相关的业务逻辑，解耦 Agent 和数据库。
 """
 
-import logging
 from datetime import datetime
-from typing import Optional
+import logging
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.error_handling import Result, success, error
-from src.core.exceptions import IntegrityError, ContentNotFoundError
+from src.core.error_handling import Result, error, success
 from src.models.content import Content
 from src.schemas.validation import ContentStatus
 
@@ -32,10 +30,10 @@ class ContentService:
         body: str,
         platforms: list[str],
         user_id: str,
-        images: Optional[list[str]] = None,
-        video_url: Optional[str] = None,
-        hashtags: Optional[list[str]] = None,
-        metadata: Optional[dict] = None,
+        images: list[str] | None = None,
+        video_url: str | None = None,
+        hashtags: list[str] | None = None,
+        metadata: dict | None = None,
     ) -> Result[Content]:
         """
         创建内容草稿。
@@ -65,7 +63,7 @@ class ContentService:
                 video_url=video_url,
                 hashtags=hashtags or [],
                 status=ContentStatus.DRAFT,
-                metadata=metadata or {},
+                extra_metadata=metadata or {},
                 created_at=datetime.utcnow(),
             )
 
@@ -162,7 +160,7 @@ class ContentService:
     async def list_contents(
         self,
         user_id: str,
-        status: Optional[ContentStatus] = None,
+        status: ContentStatus | None = None,
         limit: int = 20,
         offset: int = 0,
     ) -> Result[list[Content]]:

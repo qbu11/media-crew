@@ -13,21 +13,19 @@ Safety constraints (from media-publish-xiaohongshu skill):
 - Tags: <= 10 tags
 """
 
-import asyncio
-import json
 from datetime import datetime
-from typing import Any, Dict, Optional
-import os
+import json
+from typing import Any
 
+from ..base_tool import ToolResult, ToolStatus
 from .base import (
+    AnalyticsData,
+    AuthStatus,
     BasePlatformTool,
+    ContentType,
     PublishContent,
     PublishResult,
-    AnalyticsData,
-    ContentType,
-    AuthStatus
 )
-from ..base_tool import ToolResult, ToolStatus, ToolError
 
 # Optional CrewAI integration
 try:
@@ -64,7 +62,7 @@ class XiaohongshuTool(BasePlatformTool):
     creator_url = "https://creator.xiaohongshu.com/publish/publish"
     home_url = "https://www.xiaohongshu.com"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._auth_checked = False
         self._auth_status = AuthStatus.NOT_AUTHENTICATED
@@ -113,7 +111,7 @@ class XiaohongshuTool(BasePlatformTool):
             self._auth_status = AuthStatus.ERROR
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Authentication failed: {str(e)}",
+                error=f"Authentication failed: {e!s}",
                 platform=self.platform
             )
 
@@ -172,7 +170,7 @@ class XiaohongshuTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Publishing failed: {str(e)}",
+                error=f"Publishing failed: {e!s}",
                 platform=self.platform
             )
 
@@ -245,8 +243,8 @@ def _create_crewai_wrapper():
     def publish_to_xiaohongshu(
         title: str,
         content: str,
-        images: list[str] = None,
-        tags: list[str] = None
+        images: list[str] | None = None,
+        tags: list[str] | None = None
     ) -> str:
         """
         Publish content to Xiaohongshu (Little Red Book).
@@ -260,7 +258,6 @@ def _create_crewai_wrapper():
         Returns:
             JSON string with publish result
         """
-        from crewai import Tool
 
         tool = XiaohongshuTool()
         publish_content = PublishContent(

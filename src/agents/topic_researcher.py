@@ -4,7 +4,7 @@ Topic Researcher Agent
 选题研究员：追踪热点、分析竞品、挖掘高潜力选题。
 """
 
-from typing import Any, List, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 
@@ -21,7 +21,7 @@ class TopicResearcher(BaseAgent):
     """
 
     # 工具占位符（具体工具由工具模块注入）
-    _tools: List[Any] = []
+    _tools: list[Any] = []
 
     def get_role(self) -> str:
         """返回 Agent 的角色定义。"""
@@ -46,7 +46,7 @@ class TopicResearcher(BaseAgent):
         """返回默认的 LLM 模型。"""
         return self.DEFAULT_MODEL  # claude-sonnet-4-20250514
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """返回 Agent 可用的工具列表。"""
         # 工具列表（待工具模块实现后注入）
         # 预期工具：
@@ -57,7 +57,7 @@ class TopicResearcher(BaseAgent):
         return self._tools if self._tools else self.tools
 
     @classmethod
-    def set_tools(cls, tools: List[Any]) -> None:
+    def set_tools(cls, tools: list[Any]) -> None:
         """
         设置类级别的工具列表。
 
@@ -80,10 +80,10 @@ class TopicReport:
         category: str,
         potential_score: float,
         reasoning: str,
-        reference_content: List[str],
+        reference_content: list[str],
         target_audience: str,
         suggested_angle: str,
-        keywords: List[str],
+        keywords: list[str],
     ):
         """
         初始化选题报告。

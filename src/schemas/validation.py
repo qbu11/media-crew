@@ -4,13 +4,11 @@ Input Validation Module
 提供统一的输入验证、清洗和转义。
 """
 
-import html
-import re
 from enum import Enum
-from typing import Any, Optional
+import re
+from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, model_validator
-
+from pydantic import BaseModel, Field, field_validator
 
 # ============================================================================
 # Platform Enum
@@ -117,11 +115,7 @@ def validate_no_sql_injection(value: str) -> bool:
         r"(?i)(\bSCRIPT\b.*\bSRC\b)",
     ]
 
-    for pattern in patterns:
-        if re.search(pattern, value):
-            return False
-
-    return True
+    return all(not re.search(pattern, value) for pattern in patterns)
 
 
 def validate_no_xss(value: str) -> bool:
@@ -145,11 +139,7 @@ def validate_no_xss(value: str) -> bool:
         r"(?i)vbscript\s*:",
     ]
 
-    for pattern in patterns:
-        if re.search(pattern, value):
-            return False
-
-    return True
+    return all(not re.search(pattern, value) for pattern in patterns)
 
 
 def validate_no_prompt_injection(value: str) -> bool:
@@ -171,11 +161,7 @@ def validate_no_prompt_injection(value: str) -> bool:
         r"(?i)###\s*INSTRUCTION",
     ]
 
-    for pattern in patterns:
-        if re.search(pattern, value):
-            return False
-
-    return True
+    return all(not re.search(pattern, value) for pattern in patterns)
 
 
 # ============================================================================
@@ -258,7 +244,7 @@ class PublishRequest(BaseModel):
         max_length=6,
         description="目标平台",
     )
-    scheduled_at: Optional[str] = Field(
+    scheduled_at: str | None = Field(
         default=None,
         description="定时发布时间（ISO 8601）",
     )
@@ -274,7 +260,7 @@ class PublishRequest(BaseModel):
 
     @field_validator("scheduled_at")
     @classmethod
-    def validate_scheduled_at(cls, v: Optional[str]) -> Optional[str]:
+    def validate_scheduled_at(cls, v: str | None) -> str | None:
         """验证定时发布时间。"""
         if v is None:
             return v
@@ -324,8 +310,8 @@ class HotspotSearchRequest(BaseModel):
 class AnalyticsRequest(BaseModel):
     """数据分析请求。"""
 
-    content_id: Optional[str] = Field(default=None, max_length=100, description="内容 ID")
-    platform: Optional[Platform] = Field(default=None, description="平台")
+    content_id: str | None = Field(default=None, max_length=100, description="内容 ID")
+    platform: Platform | None = Field(default=None, description="平台")
     period: str = Field(default="7d", description="统计周期")
     metrics: list[str] = Field(
         default_factory=lambda: ["views", "likes", "comments", "shares"],
@@ -361,13 +347,13 @@ class APIResponse[T](BaseModel):
     """统一 API 响应格式。"""
 
     success: bool
-    data: Optional[T] = None
-    error: Optional[str] = None
-    error_code: Optional[str] = None
-    meta: Optional[dict[str, Any]] = None
+    data: T | None = None
+    error: str | None = None
+    error_code: str | None = None
+    meta: dict[str, Any] | None = None
 
     @classmethod
-    def ok(cls, data: T, meta: Optional[dict[str, Any]] = None) -> "APIResponse[T]":
+    def ok(cls, data: T, meta: dict[str, Any] | None = None) -> "APIResponse[T]":
         """创建成功响应。"""
         return cls(success=True, data=data, meta=meta)
 
@@ -376,7 +362,7 @@ class APIResponse[T](BaseModel):
         cls,
         error: str,
         error_code: str,
-        meta: Optional[dict[str, Any]] = None,
+        meta: dict[str, Any] | None = None,
     ) -> "APIResponse[T]":
         """创建失败响应。"""
         return cls(success=False, error=error, error_code=error_code, meta=meta)

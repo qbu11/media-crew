@@ -5,19 +5,19 @@ CrewAI Agents Module
 """
 
 from .base_agent import BaseAgent
-from .topic_researcher import TopicResearcher
-from .content_writer import ContentWriter
 from .content_reviewer import ContentReviewer
+from .content_writer import ContentWriter
+from .data_analyst import DataAnalyst
 from .platform_adapter import PlatformAdapter
 from .platform_publisher import PlatformPublisher
-from .data_analyst import DataAnalyst
+from .topic_researcher import TopicResearcher
 
 __all__ = [
     "BaseAgent",
-    "TopicResearcher",
-    "ContentWriter",
     "ContentReviewer",
+    "ContentWriter",
+    "DataAnalyst",
     "PlatformAdapter",
     "PlatformPublisher",
-    "DataAnalyst",
+    "TopicResearcher",
 ]

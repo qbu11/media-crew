@@ -39,6 +39,7 @@ dependencies = [
     # Redis for caching (optional but recommended)
     "redis>=5.0.0",
     "alembic>=1.18.4",
+    "aiofiles>=24.1.0",
 ]
 
 [project.optional-dependencies]
@@ -106,8 +107,12 @@ ignore = [
     "B008",   # do not perform function calls in argument defaults
     "W191",   # tabs
     "RUF012", # mutable class attributes
+    "RUF001", # ambiguous unicode chars in strings (Chinese project)
+    "RUF002", # ambiguous unicode chars in docstrings (Chinese project)
+    "RUF003", # ambiguous unicode chars in comments (Chinese project)
+    "ARG002", # unused method arguments (common in interface implementations)
 ]
-unfixable = ["F401"]
+unfixable = []
 
 [tool.ruff.lint.isort]
 known-first-party = ["crew"]

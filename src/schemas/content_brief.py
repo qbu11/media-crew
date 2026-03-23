@@ -43,7 +43,7 @@ class TrendingTopic(BaseModel):
 
     keyword: str = Field(..., description="Topic keyword")
     search_volume: int = Field(default=0, ge=0, description="Estimated search volume")
-    growth_rate: float = Field(default=0.0, ge=-100.0, le=100.0, description="Growth rate percentage")
+    growth_rate: float = Field(default=0.0, ge=-100.0, le=1000.0, description="Growth rate percentage")
     competition_level: Literal["low", "medium", "high"] = Field(
         default="medium", description="Competition level"
     )

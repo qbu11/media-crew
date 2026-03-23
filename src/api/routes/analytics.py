@@ -1,8 +1,8 @@
 """Analytics routes."""
 
 from datetime import datetime, timedelta
-from typing import Any
 import random
+from typing import Any
 
 from fastapi import APIRouter
 

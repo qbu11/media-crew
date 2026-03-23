@@ -201,14 +201,14 @@ class TestContentBriefSchema:
         """
         Test TrendingTopic rejects invalid growth_rate.
 
-        Arrange: Try to create with growth_rate > 100
+        Arrange: Try to create with growth_rate > 1000
         Act: Validate
         Assert: ValidationError is raised
         """
         with pytest.raises(ValidationError):
             TrendingTopic(
                 keyword="Test",
-                growth_rate=150.0,  # Should be -100 to 100
+                growth_rate=1500.0,  # Should be -100 to 1000
                 competition_level="medium",
             )
 
@@ -276,8 +276,8 @@ class TestContentDraftSchema:
             platform_fit=7.0,
         )
 
-        # Expected: 9*0.25 + 8*0.2 + 7*0.25 + 8*0.15 + 7*0.15 = 2.25 + 1.6 + 1.75 + 1.2 + 1.05 = 7.85
-        assert score.overall == pytest.approx(7.85)
+        # Expected: 9*0.25 + 8*0.2 + 7*0.25 + 8*0.15 + 7*0.15 = 7.85 -> round(7.85, 1) = 7.8
+        assert score.overall == pytest.approx(7.8)
 
     def test_quality_score_passes_threshold(self) -> None:
         """
@@ -347,7 +347,7 @@ class TestContentDraftSchema:
             plain_text="这是测试内容，用于计算字符数。",
         )
 
-        assert content.character_count == 18
+        assert content.character_count == 15
 
     def test_platform_content_character_limits(self) -> None:
         """

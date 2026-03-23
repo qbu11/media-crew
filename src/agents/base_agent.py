@@ -5,7 +5,7 @@ Base Agent Module
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional
+from typing import Any
 
 from crewai import Agent
 from langchain_anthropic import ChatAnthropic
@@ -24,8 +24,8 @@ class BaseAgent(ABC):
 
     def __init__(
         self,
-        llm: Optional[str] = None,
-        tools: Optional[List[Any]] = None,
+        llm: str | None = None,
+        tools: list[Any] | None = None,
         verbose: bool = True,
         allow_delegation: bool = True,
         human_input: bool = False,
@@ -66,7 +66,7 @@ class BaseAgent(ABC):
         """
         return self.DEFAULT_MODEL
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """
         返回 Agent 可用的工具列表。
 
@@ -102,8 +102,8 @@ class BaseAgent(ABC):
     @classmethod
     def create(
         cls,
-        llm: Optional[str] = None,
-        tools: Optional[List[Any]] = None,
+        llm: str | None = None,
+        tools: list[Any] | None = None,
         **kwargs,
     ) -> Agent:
         """

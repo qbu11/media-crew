@@ -4,17 +4,13 @@ Content Crew Module
 内容生产线 Crew：选题研究 → 内容创作 → 内容审核。
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from crewai import Process, Task
-from loguru import logger
 
-from src.agents import (
-    ContentReviewer,
-    ContentWriter,
-    TopicResearcher,
-)
-from src.tools import hot_search_tool, competitor_analysis_tool, trend_analysis_tool
+from src.agents import ContentReviewer, ContentWriter, TopicResearcher
+from src.tools import competitor_analysis_tool, hot_search_tool, trend_analysis_tool
+
 from .base_crew import BaseCrew, CrewInput, CrewResult, CrewStatus
 
 
@@ -34,7 +30,7 @@ class ContentCrewInput(CrewInput):
     def __init__(
         self,
         industry: str,
-        keywords: List[str],
+        keywords: list[str],
         target_platform: str = "xiaohongshu",
         content_type: str = "article",
         research_depth: str = "standard",
@@ -67,9 +63,9 @@ class ContentCrewResult(CrewResult):
     def __init__(
         self,
         status: CrewStatus,
-        topic_report: Optional[Dict[str, Any]] = None,
-        content_draft: Optional[Dict[str, Any]] = None,
-        review_report: Optional[Dict[str, Any]] = None,
+        topic_report: dict[str, Any] | None = None,
+        content_draft: dict[str, Any] | None = None,
+        review_report: dict[str, Any] | None = None,
         **kwargs,
     ):
         super().__init__(status=status, **kwargs)
@@ -111,9 +107,9 @@ class ContentCrew(BaseCrew):
         verbose: bool = True,
         process: Process = Process.sequential,
         memory: bool = True,
-        max_rpm: Optional[int] = None,
+        max_rpm: int | None = None,
         enable_human_review: bool = True,
-        llm: Optional[str] = None,
+        llm: str | None = None,
     ):
         """
         初始化 ContentCrew。
@@ -150,7 +146,7 @@ class ContentCrew(BaseCrew):
         """返回 Crew 描述。"""
         return "内容生产线：选题研究 → 内容创作 → 内容审核"
 
-    def get_agents(self) -> List[Any]:
+    def get_agents(self) -> list[Any]:
         """
         返回 Crew 的 Agent 列表。
 
@@ -180,7 +176,7 @@ class ContentCrew(BaseCrew):
 
         return [topic_researcher, content_writer, content_reviewer]
 
-    def get_tasks(self, inputs: CrewInput) -> List[Any]:
+    def get_tasks(self, inputs: CrewInput) -> list[Any]:
         """
         根据 Crew 输入返回任务列表。
 
@@ -294,7 +290,7 @@ class ContentCrew(BaseCrew):
 
         return [research_task, write_task, review_task]
 
-    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, Optional[str]]:
+    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, str | None]:
         """
         验证输入参数。
 
@@ -331,7 +327,7 @@ class ContentCrew(BaseCrew):
 
         return True, None
 
-    def _parse_outputs(self, outputs: Any) -> Dict[str, Any]:
+    def _parse_outputs(self, outputs: Any) -> dict[str, Any]:
         """
         解析 Crew 输出。
 
@@ -361,7 +357,7 @@ class ContentCrew(BaseCrew):
 
         return result
 
-    def _extract_task_output(self, task_output: Any) -> Dict[str, Any]:
+    def _extract_task_output(self, task_output: Any) -> dict[str, Any]:
         """
         提取任务输出。
 
@@ -418,7 +414,7 @@ class ContentCrew(BaseCrew):
     def create(
         cls,
         enable_human_review: bool = True,
-        llm: Optional[str] = None,
+        llm: str | None = None,
         **kwargs,
     ) -> "ContentCrew":
         """

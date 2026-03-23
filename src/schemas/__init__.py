@@ -1,5 +1,7 @@
 """Pydantic schemas for request/response validation."""
 
+from src.schemas.account import AccountCreate, AccountResponse, AccountStatusEnum, AccountUpdate
+from src.schemas.account import PlatformType as AccountPlatformType
 from src.schemas.analytics_report import (
     AnalyticsReport,
     AudienceDemographics,
@@ -12,6 +14,7 @@ from src.schemas.analytics_report import (
     TimePeriod,
     TrendDirection,
 )
+from src.schemas.client import ClientCreate, ClientResponse, ClientUpdate
 from src.schemas.content_brief import (
     AudienceInsight,
     ContentBrief,
@@ -37,35 +40,44 @@ from src.schemas.publish_result import (
 )
 
 __all__ = [
+    "AccountCreate",
+    "AccountPlatformType",
+    "AccountResponse",
+    "AccountStatusEnum",
+    "AccountUpdate",
+    # Analytics Report
+    "AnalyticsReport",
+    "AudienceDemographics",
+    "AudienceInsight",
+    # Client & Account
+    "ClientCreate",
+    "ClientResponse",
+    "ClientUpdate",
+    "ComparisonAnalytics",
+    "ContentBlock",
     # Content Brief
     "ContentBrief",
-    "AudienceInsight",
-    "TrendingTopic",
-    "TargetAudience",
-    "ContentType",
-    "PlatformType",
     # Content Draft
     "ContentDraft",
+    "ContentType",
     "DraftStatus",
+    "EngagementRate",
+    "MetricType",
+    "MetricValue",
+    "PerformanceInsight",
+    "PlatformAnalytics",
     "PlatformContent",
-    "ContentBlock",
-    "QualityScore",
-    "ReviewFeedback",
+    "PlatformPostInfo",
+    "PlatformType",
+    "PublishError",
     # Publish Result
     "PublishResult",
     "PublishStatus",
+    "QualityScore",
+    "ReviewFeedback",
     "ScheduleType",
-    "PlatformPostInfo",
-    "PublishError",
-    # Analytics Report
-    "AnalyticsReport",
+    "TargetAudience",
     "TimePeriod",
-    "PlatformAnalytics",
-    "MetricType",
-    "MetricValue",
     "TrendDirection",
-    "EngagementRate",
-    "AudienceDemographics",
-    "PerformanceInsight",
-    "ComparisonAnalytics",
+    "TrendingTopic",
 ]

@@ -4,7 +4,7 @@ Content Writer Agent
 内容创作者：根据选题和平台特性创作高质量、高传播力的内容。
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 
@@ -21,7 +21,7 @@ class ContentWriter(BaseAgent):
     """
 
     # 工具占位符（具体工具由工具模块注入）
-    _tools: List[Any] = []
+    _tools: list[Any] = []
 
     def get_role(self) -> str:
         """返回 Agent 的角色定义。"""
@@ -48,7 +48,7 @@ class ContentWriter(BaseAgent):
         """返回默认的 LLM 模型。"""
         return self.OPUS_MODEL  # claude-opus-4-20250514
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """返回 Agent 可用的工具列表。"""
         # 工具列表（待工具模块实现后注入）
         # 预期工具：
@@ -58,7 +58,7 @@ class ContentWriter(BaseAgent):
         return self._tools if self._tools else self.tools
 
     @classmethod
-    def set_tools(cls, tools: List[Any]) -> None:
+    def set_tools(cls, tools: list[Any]) -> None:
         """
         设置类级别的工具列表。
 
@@ -80,10 +80,10 @@ class ContentDraft:
         title: str,
         content: str,
         summary: str,
-        tags: List[str],
-        cover_image_prompt: Optional[str] = None,
+        tags: list[str],
+        cover_image_prompt: str | None = None,
         platform: str = "general",
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         """
         初始化内容草稿。

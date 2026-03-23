@@ -9,11 +9,11 @@
 - threadspipe (Threads): https://pypi.org/project/threadspipepy
 """
 
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass, field
+from typing import Any
 
-from .base import BasePlatformTool, PublishContent, PublishResult, ContentType
+from .base import BasePlatformTool, ContentType, PublishContent, PublishResult
 
 
 @dataclass
@@ -87,7 +87,7 @@ class RedditSDKTool(BasePlatformTool):
     max_title_length: int = 300
     max_body_length: int = 40000
     max_images: int = 20
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.IMAGE_TEXT,
@@ -95,7 +95,7 @@ class RedditSDKTool(BasePlatformTool):
     ]
     min_publish_interval: int = 600  # 10 分钟
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._client_id = self.config.get("reddit_client_id")
         self._client_secret = self.config.get("reddit_client_secret")
@@ -136,7 +136,7 @@ class RedditSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"认证失败: {str(e)}",
+                error=f"认证失败: {e!s}",
                 platform=self.platform
             )
 
@@ -192,11 +192,11 @@ class RedditSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"发布失败: {str(e)}",
+                error=f"发布失败: {e!s}",
                 platform=self.platform
             )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Reddit 帖子数据"""
         try:
             reddit = self._get_client()
@@ -242,14 +242,14 @@ class TwitterSDKTool(BasePlatformTool):
 
     max_body_length: int = 280
     max_images: int = 4
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.IMAGE_TEXT,
     ]
     min_publish_interval: int = 60
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._api_key = self.config.get("twitter_api_key")
         self._api_secret = self.config.get("twitter_api_secret")
@@ -289,7 +289,7 @@ class TwitterSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"认证失败: {str(e)}",
+                error=f"认证失败: {e!s}",
                 platform=self.platform
             )
 
@@ -355,7 +355,7 @@ class TwitterSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"发布失败: {str(e)}",
+                error=f"发布失败: {e!s}",
                 platform=self.platform
             )
 
@@ -387,7 +387,7 @@ class TwitterSDKTool(BasePlatformTool):
             status_detail=f"已发布 Thread ({len(tweets)} 条)"
         )
 
-    def _split_to_thread(self, text: str, max_len: int) -> List[str]:
+    def _split_to_thread(self, text: str, max_len: int) -> list[str]:
         """将长文本拆分为 Thread"""
         tweets = []
         remaining = text
@@ -410,7 +410,7 @@ class TwitterSDKTool(BasePlatformTool):
 
         return tweets
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取推文数据"""
         try:
             client = self._get_client()
@@ -459,14 +459,14 @@ class InstagramSDKTool(BasePlatformTool):
 
     max_body_length: int = 2200
     max_images: int = 10
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.IMAGE,
         ContentType.VIDEO,
         ContentType.IMAGE_TEXT,
     ]
     min_publish_interval: int = 300  # 5 分钟
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._username = self.config.get("instagram_username")
         self._password = self.config.get("instagram_password")
@@ -503,7 +503,7 @@ class InstagramSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"认证失败: {str(e)}",
+                error=f"认证失败: {e!s}",
                 platform=self.platform
             )
 
@@ -553,11 +553,11 @@ class InstagramSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"发布失败: {str(e)}",
+                error=f"发布失败: {e!s}",
                 platform=self.platform
             )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Instagram 帖子数据"""
         try:
             cl = self._get_client()
@@ -603,7 +603,7 @@ class FacebookSDKTool(BasePlatformTool):
 
     max_body_length: int = 63206
     max_images: int = 10
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.VIDEO,
@@ -611,7 +611,7 @@ class FacebookSDKTool(BasePlatformTool):
     ]
     min_publish_interval: int = 60
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._access_token = self.config.get("facebook_access_token")
         self._page_id = self.config.get("facebook_page_id")
@@ -642,7 +642,7 @@ class FacebookSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"认证失败: {str(e)}",
+                error=f"认证失败: {e!s}",
                 platform=self.platform
             )
 
@@ -690,11 +690,11 @@ class FacebookSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"发布失败: {str(e)}",
+                error=f"发布失败: {e!s}",
                 platform=self.platform
             )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Facebook 帖子数据"""
         try:
             graph = self._get_client()
@@ -740,7 +740,7 @@ class ThreadsSDKTool(BasePlatformTool):
 
     max_body_length: int = 500
     max_images: int = 10
-    supported_content_types: List[ContentType] = [
+    supported_content_types: list[ContentType] = [
         ContentType.TEXT,
         ContentType.IMAGE,
         ContentType.VIDEO,
@@ -748,7 +748,7 @@ class ThreadsSDKTool(BasePlatformTool):
     ]
     min_publish_interval: int = 60
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._access_token = self.config.get("threads_access_token")
         self._user_id = self.config.get("threads_user_id")
@@ -826,11 +826,11 @@ class ThreadsSDKTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=self._create_failed_status(),
-                error=f"发布失败: {str(e)}",
+                error=f"发布失败: {e!s}",
                 platform=self.platform
             )
 
-    def get_analytics(self, content_id: str) -> Dict[str, Any]:
+    def get_analytics(self, content_id: str) -> dict[str, Any]:
         """获取 Threads 数据"""
         # Threads API 较新，分析功能有限
         return {
@@ -852,7 +852,7 @@ class ThreadsSDKTool(BasePlatformTool):
 
 
 # 工厂函数
-def get_overseas_sdk_tool(platform: str, config: Optional[Dict[str, Any]] = None):
+def get_overseas_sdk_tool(platform: str, config: dict[str, Any] | None = None):
     """获取海外平台 SDK 工具实例"""
     tools = {
         "reddit": RedditSDKTool,
@@ -871,7 +871,7 @@ def get_overseas_sdk_tool(platform: str, config: Optional[Dict[str, Any]] = None
 
 
 # 依赖安装帮助
-def install_sdk_dependencies(platforms: List[str] = None):
+def install_sdk_dependencies(platforms: list[str] | None = None):
     """打印 SDK 依赖安装命令"""
     if platforms is None:
         platforms = list(SDK_INFO.keys())

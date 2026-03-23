@@ -4,16 +4,16 @@ Authentication and Authorization Module
 提供 JWT 认证、用户管理和权限检查。
 """
 
+from dataclasses import dataclass, field
+from enum import Enum
 import hashlib
 import logging
 import secrets
 import time
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
-import orjson
 from cryptography.fernet import Fernet
+import orjson
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class User:
     username: str
     role: UserRole = UserRole.USER
     created_at: float = field(default_factory=time.time)
-    last_login: Optional[float] = None
+    last_login: float | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def is_admin(self) -> bool:
@@ -106,7 +106,7 @@ class JWTManager:
 
         return f"{payload_b64}.{signature}"
 
-    def verify_token(self, token: str) -> Optional[TokenPayload]:
+    def verify_token(self, token: str) -> TokenPayload | None:
         """验证 JWT Token。"""
         try:
             parts = token.split(".")
@@ -175,7 +175,7 @@ class EncryptionManager:
     使用 Fernet (AES-128-CBC) 对称加密。
     """
 
-    def __init__(self, encryption_key: Optional[str] = None):
+    def __init__(self, encryption_key: str | None = None):
         """
         Args:
             encryption_key: 加密密钥（Base64 编码的 Fernet key）
@@ -229,7 +229,7 @@ class EncryptedCookie:
     platform: str
     encrypted_data: str
     created_at: float
-    expires_at: Optional[float] = None
+    expires_at: float | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def is_expired(self) -> bool:
@@ -253,7 +253,7 @@ class CookieManager:
         self,
         platform: str,
         cookie_data: str,
-        expires_in: Optional[int] = None,
+        expires_in: int | None = None,
     ) -> None:
         """
         存储 Cookie。
@@ -278,7 +278,7 @@ class CookieManager:
 
         logger.info(f"存储 {platform} Cookie 成功")
 
-    def get_cookie(self, platform: str) -> Optional[str]:
+    def get_cookie(self, platform: str) -> str | None:
         """
         获取 Cookie。
 
@@ -325,14 +325,14 @@ class CookieManager:
 class AuthContext:
     """认证上下文，存储当前用户信息。"""
 
-    _current_user: Optional[User] = None
+    _current_user: User | None = None
 
     @classmethod
     def set_user(cls, user: User) -> None:
         cls._current_user = user
 
     @classmethod
-    def get_user(cls) -> Optional[User]:
+    def get_user(cls) -> User | None:
         return cls._current_user
 
     @classmethod
@@ -340,7 +340,7 @@ class AuthContext:
         cls._current_user = None
 
 
-def require_auth(required_role: Optional[UserRole] = None):
+def require_auth(required_role: UserRole | None = None):
     """
     认证装饰器。
 
@@ -406,10 +406,7 @@ class APIKeyManager:
 
         使用常量时间比较防止时序攻击。
         """
-        for valid_key in self.valid_keys:
-            if secrets.compare_digest(api_key, valid_key):
-                return True
-        return False
+        return any(secrets.compare_digest(api_key, valid_key) for valid_key in self.valid_keys)
 
     def generate_key(self) -> str:
         """生成新的 API Key。"""

@@ -1,19 +1,17 @@
 """Content database models."""
 
-import json
 from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import String, Text, JSON, Integer, ForeignKey, Unicode, DateTime
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from src.models.publish_log import PublishLog
     from src.models.analytics import Analytics
+    from src.models.publish_log import PublishLog
 
 
 class ContentType(str):
@@ -141,14 +139,32 @@ class Content(Base, TimestampMixin):
     )
 
     # Foreign keys
-    draft_id: Mapped[str] = mapped_column(
+    draft_id: Mapped[str | None] = mapped_column(
         String(50), ForeignKey("content_drafts.id", ondelete="SET NULL"), nullable=True
     )
 
+    # User ownership
+    user_id: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+
     # Content info
     topic: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
-    content_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    body: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    content_type: Mapped[str] = mapped_column(String(20), nullable=False, default="article")
     platforms: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+    # Media
+    images: Mapped[dict] = mapped_column(JSON, nullable=False, default=list)
+    video_url: Mapped[str | None] = mapped_column(String(500), nullable=True, default=None)
+
+    # Tags & metadata
+    hashtags: Mapped[dict] = mapped_column(JSON, nullable=False, default=list)
+    extra_metadata: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True, default=None)
+
+    # Status
+    status: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="draft", index=True
+    )
 
     # Performance tracking
     total_views: Mapped[int] = mapped_column(Integer, default=0)

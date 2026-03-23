@@ -33,7 +33,7 @@ from src.agents.topic_researcher import TopicResearcher, TopicReport
 from src.crew.crews.base_crew import BaseCrew, CrewInput, CrewResult, CrewStatus
 from src.models.base import Base
 from src.models.analytics import Analytics, MetricSnapshot
-from src.models.content import Content, ContentBrief, ContentDraft as ContentDraftDB
+from src.models.content import Content, ContentBrief as ContentBriefDB, ContentDraft as ContentDraftDB
 from src.models.publish_log import PlatformPost, PublishLog
 from src.schemas.analytics_report import (
     AnalyticsReport as AnalyticsReportSchema,
@@ -42,7 +42,7 @@ from src.schemas.analytics_report import (
 )
 from src.schemas.content_brief import (
     AudienceInsight,
-    ContentBrief,
+    ContentBrief as ContentBriefSchema,
     ContentType,
     PlatformType,
     TargetAudience,
@@ -116,7 +116,62 @@ def test_session(test_engine) -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
-def sample_content_brief(test_session: Session) -> ContentBrief:
+async def db_session(test_engine):
+    """
+    Create an async test database session for content_service tests.
+
+    Yields:
+        AsyncSession: SQLAlchemy async session
+    """
+    from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+    from sqlalchemy.orm import sessionmaker as async_sessionmaker
+
+    # Create async engine
+    async_engine = create_async_engine(
+        "sqlite+aiosqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+    )
+
+    # Create tables
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    # Create session
+    AsyncSessionLocal = async_sessionmaker(
+        async_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+    async with AsyncSessionLocal() as session:
+        yield session
+        await session.rollback()
+
+    # Cleanup
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+    await async_engine.dispose()
+
+
+@pytest.fixture(scope="function")
+async def client():
+    """
+    Create an async HTTP client for testing FastAPI endpoints.
+
+    Yields:
+        AsyncClient: HTTPX async client
+    """
+    from httpx import ASGITransport, AsyncClient
+    from src.api.main import app
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+
+
+@pytest.fixture(scope="function")
+def sample_content_brief(test_session: Session) -> ContentBriefDB:
     """
     Create a sample content brief in the test database.
 
@@ -124,9 +179,9 @@ def sample_content_brief(test_session: Session) -> ContentBrief:
         test_session: Test database session
 
     Returns:
-        ContentBrief: Sample content brief instance
+        ContentBriefDB: Sample content brief instance
     """
-    brief = ContentBrief(
+    brief = ContentBriefDB(
         topic="AI创业实战指南",
         sub_topics=["MVP开发", "融资策略"],
         keywords=["AI创业", "人工智能", "创业指南"],
@@ -168,7 +223,7 @@ def sample_content_brief(test_session: Session) -> ContentBrief:
 @pytest.fixture(scope="function")
 def sample_content_draft(
     test_session: Session,
-    sample_content_brief: ContentBrief,
+    sample_content_brief: ContentBriefDB,
 ) -> ContentDraftDB:
     """
     Create a sample content draft in the test database.
@@ -549,14 +604,14 @@ def sample_crew_result() -> CrewResult:
 
 
 @pytest.fixture(scope="function")
-def sample_content_brief_schema() -> ContentBrief:
+def sample_content_brief_schema() -> ContentBriefSchema:
     """
     Provide a sample ContentBrief schema instance.
 
     Returns:
-        ContentBrief: Sample schema instance
+        ContentBriefSchema: Sample schema instance
     """
-    return ContentBrief(
+    return ContentBriefSchema(
         id="brief-20250320-001",
         topic="AI创业实战指南",
         sub_topics=["MVP开发", "融资策略"],

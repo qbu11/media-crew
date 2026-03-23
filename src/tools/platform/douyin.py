@@ -9,17 +9,17 @@ This tool is for educational purposes and should be used carefully.
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
+from ..base_tool import ToolResult, ToolStatus
 from .base import (
+    AnalyticsData,
+    AuthStatus,
     BasePlatformTool,
+    ContentType,
     PublishContent,
     PublishResult,
-    AnalyticsData,
-    ContentType,
-    AuthStatus
 )
-from ..base_tool import ToolResult, ToolStatus
 
 
 class DouyinTool(BasePlatformTool):
@@ -50,7 +50,7 @@ class DouyinTool(BasePlatformTool):
     creator_url = "https://creator.douyin.com/creator-micro/content/upload"
     home_url = "https://www.douyin.com"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._auth_status = AuthStatus.NOT_AUTHENTICATED
 
@@ -77,7 +77,7 @@ class DouyinTool(BasePlatformTool):
             self._auth_status = AuthStatus.ERROR
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Authentication failed: {str(e)}",
+                error=f"Authentication failed: {e!s}",
                 platform=self.platform
             )
 
@@ -155,7 +155,7 @@ class DouyinTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Publishing failed: {str(e)}",
+                error=f"Publishing failed: {e!s}",
                 platform=self.platform
             )
 

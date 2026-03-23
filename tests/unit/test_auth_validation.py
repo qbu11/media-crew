@@ -516,9 +516,9 @@ def test_publish_request_invalid_content_id():
 @pytest.mark.unit
 def test_publish_request_scheduled_time():
     """测试定时发布时间。"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
-    future_time = (datetime.utcnow() + timedelta(hours=1)).isoformat()
+    future_time = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
 
     request = PublishRequest(
         content_id="content-001",
@@ -532,9 +532,9 @@ def test_publish_request_scheduled_time():
 @pytest.mark.unit
 def test_publish_request_past_scheduled_time():
     """测试过去的定时时间。"""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
-    past_time = (datetime.utcnow() - timedelta(hours=1)).isoformat()
+    past_time = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
 
     with pytest.raises(ValueError):
         PublishRequest(

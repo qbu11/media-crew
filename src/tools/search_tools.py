@@ -7,12 +7,12 @@ Provides tools for:
 - Trend analysis and prediction
 """
 
-import json
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
 from enum import Enum
+import json
+from typing import Any
 
-from .base_tool import BaseTool, ToolResult, ToolStatus, ToolError
+from .base_tool import BaseTool, ToolResult, ToolStatus
 
 
 class Platform(Enum):
@@ -39,13 +39,13 @@ class HotSearchTool(BaseTool):
     max_requests_per_minute = 10
     min_interval_seconds = 5.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._tikhub_token = self.config.get("tikhub_token")
-        self._cache: Dict[str, tuple[List[Dict], datetime]] = {}
+        self._cache: dict[str, tuple[list[dict], datetime]] = {}
         self._cache_ttl = timedelta(minutes=10)
 
-    def _get_cached(self, key: str) -> Optional[List[Dict]]:
+    def _get_cached(self, key: str) -> list[dict] | None:
         """Get cached results if still valid"""
         if key in self._cache:
             results, timestamp = self._cache[key]
@@ -53,11 +53,11 @@ class HotSearchTool(BaseTool):
                 return results
         return None
 
-    def _set_cache(self, key: str, results: List[Dict]) -> None:
+    def _set_cache(self, key: str, results: list[dict]) -> None:
         """Cache results with timestamp"""
         self._cache[key] = (results, datetime.now())
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         platform_str = kwargs.get("platform", "weibo")
         try:
@@ -124,7 +124,7 @@ class HotSearchTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Failed to fetch hot search: {str(e)}",
+                error=f"Failed to fetch hot search: {e!s}",
                 platform=platform_str
             )
 
@@ -132,8 +132,8 @@ class HotSearchTool(BaseTool):
         self,
         platform: Platform,
         limit: int,
-        category: Optional[str]
-    ) -> List[Dict]:
+        category: str | None
+    ) -> list[dict]:
         """Fetch hot search from specific platform"""
         # In actual implementation, this would:
         # - Use platform APIs (TikHub, etc.)
@@ -168,11 +168,11 @@ class CompetitorAnalysisTool(BaseTool):
     max_requests_per_minute = 5
     min_interval_seconds = 10.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._tikhub_token = self.config.get("tikhub_token")
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         if "account_id" not in kwargs and "account_url" not in kwargs:
             return False, "Either account_id or account_url is required"
@@ -238,7 +238,7 @@ class CompetitorAnalysisTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Analysis failed: {str(e)}",
+                error=f"Analysis failed: {e!s}",
                 platform=platform_str
             )
 
@@ -263,11 +263,11 @@ class TrendAnalysisTool(BaseTool):
     max_requests_per_minute = 3
     min_interval_seconds = 30.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._tikhub_token = self.config.get("tikhub_token")
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         keyword = kwargs.get("keyword")
         category = kwargs.get("category")
@@ -329,7 +329,7 @@ class TrendAnalysisTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Trend analysis failed: {str(e)}",
+                error=f"Trend analysis failed: {e!s}",
                 platform="multi"
             )
 

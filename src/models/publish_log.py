@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from sqlalchemy import String, JSON, Integer, DateTime, ForeignKey
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base, TimestampMixin
@@ -133,4 +133,4 @@ class PlatformPost(Base, TimestampMixin):
     fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     # Post Metadata (renamed to avoid SQLAlchemy reserved word)
-    post_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=False)
+    post_metadata: Mapped[dict] = mapped_column("metadata", JSON, nullable=False, default=dict)

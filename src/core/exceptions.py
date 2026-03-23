@@ -4,7 +4,7 @@ Custom exceptions for Crew Media Ops.
 所有自定义异常都应继承自 CrewException。
 """
 
-from typing import Any, Optional
+from typing import Any
 
 
 class CrewException(Exception):
@@ -14,7 +14,7 @@ class CrewException(Exception):
         self,
         message: str,
         error_code: str,
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ):
         self.message = message
         self.error_code = error_code

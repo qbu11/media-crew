@@ -106,6 +106,7 @@ class PlatformContent(BaseModel):
     def calculate_character_count(self) -> "PlatformContent":
         """Auto-calculate character count."""
         if self.plain_text:
+            # Count actual characters, not bytes
             self.character_count = len(self.plain_text)
         else:
             self.character_count = sum(len(b.content) for b in self.content_blocks)

@@ -4,13 +4,12 @@ Audit Logging Module
 提供安全审计日志功能，记录关键操作。
 """
 
+from dataclasses import dataclass, field
+from enum import Enum
 import json
 import logging
-from dataclasses import dataclass, field, asdict
-from datetime import datetime
-from enum import Enum
-from typing import Any, Optional
 import time
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -64,16 +63,16 @@ class AuditEvent:
 
     event_type: AuditEventType
     severity: AuditSeverity
-    user_id: Optional[str]
-    ip_address: Optional[str]
-    user_agent: Optional[str]
-    resource_type: Optional[str] = None
-    resource_id: Optional[str] = None
-    action: Optional[str] = None
+    user_id: str | None
+    ip_address: str | None
+    user_agent: str | None
+    resource_type: str | None = None
+    resource_id: str | None = None
+    action: str | None = None
     details: dict[str, Any] = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
-    request_id: Optional[str] = None
-    session_id: Optional[str] = None
+    request_id: str | None = None
+    session_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """转换为字典。"""
@@ -133,15 +132,15 @@ class AuditLogger:
         self,
         event_type: AuditEventType,
         severity: AuditSeverity,
-        user_id: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        action: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
-        request_id: Optional[str] = None,
-        session_id: Optional[str] = None,
+        user_id: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
+        action: str | None = None,
+        details: dict[str, Any] | None = None,
+        request_id: str | None = None,
+        session_id: str | None = None,
     ) -> None:
         """
         记录审计事件。
@@ -207,7 +206,7 @@ class AuditLogger:
     def log_login(
         self,
         user_id: str,
-        ip_address: Optional[str] = None,
+        ip_address: str | None = None,
         method: str = "password",
         success: bool = True,
     ) -> None:
@@ -220,7 +219,7 @@ class AuditLogger:
             details={"method": method, "success": success},
         )
 
-    def log_logout(self, user_id: str, ip_address: Optional[str] = None) -> None:
+    def log_logout(self, user_id: str, ip_address: str | None = None) -> None:
         """记录登出事件。"""
         self.log(
             event_type=AuditEventType.USER_LOGOUT,
@@ -234,8 +233,8 @@ class AuditLogger:
         operation: str,
         user_id: str,
         content_id: str,
-        platform: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
+        platform: str | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """记录内容操作。"""
         event_map = {
@@ -263,8 +262,8 @@ class AuditLogger:
         user_id: str,
         platform: str,
         success: bool = True,
-        error: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
+        error: str | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """记录平台操作。"""
         event_map = {
@@ -289,10 +288,10 @@ class AuditLogger:
 
     def log_suspicious_activity(
         self,
-        user_id: Optional[str],
-        ip_address: Optional[str],
+        user_id: str | None,
+        ip_address: str | None,
         reason: str,
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """记录可疑活动。"""
         self.log(
@@ -305,7 +304,7 @@ class AuditLogger:
 
     def log_rate_limit_exceeded(
         self,
-        ip_address: Optional[str],
+        ip_address: str | None,
         endpoint: str,
         limit: int,
         current: int,
@@ -324,7 +323,7 @@ class AuditLogger:
 
 
 # 全局审计日志实例
-_audit_logger: Optional[AuditLogger] = None
+_audit_logger: AuditLogger | None = None
 
 
 def get_audit_logger() -> AuditLogger:

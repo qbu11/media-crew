@@ -6,7 +6,7 @@ Platform Publisher Agent
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 from .platform_adapter import Platform
@@ -36,12 +36,12 @@ class PlatformPublisher(BaseAgent):
     """
 
     # 工具占位符（具体工具由工具模块注入）
-    _tools: List[Any] = []
+    _tools: list[Any] = []
 
     def __init__(
         self,
-        llm: Optional[str] = None,
-        tools: Optional[List[Any]] = None,
+        llm: str | None = None,
+        tools: list[Any] | None = None,
         verbose: bool = True,
         allow_delegation: bool = False,
         human_input: bool = False,
@@ -89,7 +89,7 @@ class PlatformPublisher(BaseAgent):
         """返回默认的 LLM 模型。"""
         return self.DEFAULT_MODEL  # claude-sonnet-4-20250514
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """返回 Agent 可用的工具列表。"""
         # 工具列表（待工具模块实现后注入）
         # 预期工具：
@@ -99,7 +99,7 @@ class PlatformPublisher(BaseAgent):
         return self._tools if self._tools else self.tools
 
     @classmethod
-    def set_tools(cls, tools: List[Any]) -> None:
+    def set_tools(cls, tools: list[Any]) -> None:
         """
         设置类级别的工具列表。
 
@@ -121,12 +121,12 @@ class PublishRecord:
         content_id: str,
         platform: Platform,
         status: PublishStatus,
-        published_url: Optional[str] = None,
-        published_at: Optional[datetime] = None,
-        scheduled_at: Optional[datetime] = None,
-        error_message: Optional[str] = None,
+        published_url: str | None = None,
+        published_at: datetime | None = None,
+        scheduled_at: datetime | None = None,
+        error_message: str | None = None,
         retry_count: int = 0,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ):
         """
         初始化发布记录。
@@ -186,7 +186,7 @@ class PublishBatch:
     用于管理一条内容在多个平台的发布。
     """
 
-    def __init__(self, content_id: str, platforms: List[Platform]):
+    def __init__(self, content_id: str, platforms: list[Platform]):
         """
         初始化批量发布。
 
@@ -195,7 +195,7 @@ class PublishBatch:
             platforms: 目标平台列表
         """
         self.content_id = content_id
-        self.records: Dict[Platform, PublishRecord] = {
+        self.records: dict[Platform, PublishRecord] = {
             platform: PublishRecord(
                 content_id=content_id,
                 platform=platform,
@@ -213,7 +213,7 @@ class PublishBatch:
         """
         self.records[record.platform] = record
 
-    def get_record(self, platform: Platform) -> Optional[PublishRecord]:
+    def get_record(self, platform: Platform) -> PublishRecord | None:
         """
         获取指定平台的发布记录。
 
@@ -225,19 +225,19 @@ class PublishBatch:
         """
         return self.records.get(platform)
 
-    def get_successful_platforms(self) -> List[Platform]:
+    def get_successful_platforms(self) -> list[Platform]:
         """获取发布成功的平台列表。"""
         return [
             p for p, r in self.records.items() if r.status == PublishStatus.PUBLISHED
         ]
 
-    def get_failed_platforms(self) -> List[Platform]:
+    def get_failed_platforms(self) -> list[Platform]:
         """获取发布失败的平台列表。"""
         return [
             p for p, r in self.records.items() if r.status == PublishStatus.FAILED
         ]
 
-    def get_pending_platforms(self) -> List[Platform]:
+    def get_pending_platforms(self) -> list[Platform]:
         """获取待发布的平台列表。"""
         return [
             p

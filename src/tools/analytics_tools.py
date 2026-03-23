@@ -7,10 +7,10 @@ Provides tools for:
 - Performance tracking
 """
 
-import json
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
 from enum import Enum
+import json
+from typing import Any
 
 from .base_tool import BaseTool, ToolResult, ToolStatus
 
@@ -48,11 +48,11 @@ class DataCollectTool(BaseTool):
     max_requests_per_minute = 10
     min_interval_seconds = 5.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._tikhub_token = self.config.get("tikhub_token")
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         if "content_id" not in kwargs and "content_ids" not in kwargs:
             return False, "Either content_id or content_ids is required"
@@ -106,7 +106,7 @@ class DataCollectTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Data collection failed: {str(e)}",
+                error=f"Data collection failed: {e!s}",
                 platform=platform
             )
 
@@ -114,8 +114,8 @@ class DataCollectTool(BaseTool):
         self,
         content_id: str,
         platform: str,
-        metrics: List[str]
-    ) -> Dict[str, Any]:
+        metrics: list[str]
+    ) -> dict[str, Any]:
         """Fetch data for a single content item"""
         # In actual implementation:
         # 1. Call platform API or use web scraping
@@ -152,10 +152,10 @@ class AnalyticsReportTool(BaseTool):
     max_requests_per_minute = 10
     min_interval_seconds = 2.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         data = kwargs.get("data")
         if not data:
@@ -221,11 +221,11 @@ class AnalyticsReportTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Report generation failed: {str(e)}",
+                error=f"Report generation failed: {e!s}",
                 platform="multi"
             )
 
-    def _generate_summary(self, data: List[Dict]) -> Dict[str, Any]:
+    def _generate_summary(self, data: list[dict]) -> dict[str, Any]:
         """Generate summary statistics"""
         if not data:
             return {}
@@ -268,7 +268,7 @@ class AnalyticsReportTool(BaseTool):
             ]
         }
 
-    def _generate_insights(self, data: List[Dict]) -> List[str]:
+    def _generate_insights(self, data: list[dict]) -> list[str]:
         """Generate actionable insights"""
         insights = []
 
@@ -302,7 +302,7 @@ class AnalyticsReportTool(BaseTool):
 
         return insights
 
-    def _generate_chart_data(self, data: List[Dict]) -> Dict[str, Any]:
+    def _generate_chart_data(self, data: list[dict]) -> dict[str, Any]:
         """Generate data for charts"""
         # Time series data
         time_series = []
@@ -328,7 +328,7 @@ class AnalyticsReportTool(BaseTool):
             ]
         }
 
-    def _format_markdown(self, report: Dict[str, Any]) -> str:
+    def _format_markdown(self, report: dict[str, Any]) -> str:
         """Format report as Markdown"""
         lines = ["# Analytics Report\n"]
         lines.append(f"Generated: {report['generated_at']}\n")
@@ -352,7 +352,7 @@ class AnalyticsReportTool(BaseTool):
 
         return "\n".join(lines)
 
-    def _format_csv(self, data: List[Dict]) -> str:
+    def _format_csv(self, data: list[dict]) -> str:
         """Format data as CSV"""
         if not data:
             return ""

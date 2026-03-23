@@ -4,16 +4,15 @@ Crew 使用示例
 演示如何使用 3 个核心 Crew。
 """
 
-from datetime import datetime
 
 # 导入 Crew
 from src.crew.crews import (
+    AnalyticsCrew,
+    AnalyticsCrewInput,
     ContentCrew,
     ContentCrewInput,
     PublishCrew,
     PublishCrewInput,
-    AnalyticsCrew,
-    AnalyticsCrewInput,
 )
 
 
@@ -161,14 +160,14 @@ def example_quick_kickoff():
     print("\n=== Quick Kickoff Example ===\n")
 
     # ContentCrew 快速 kickoff
-    content_result = ContentCrew.create().kickoff(
+    ContentCrew.create().kickoff(
         industry="科技",
         keywords=["AI"],
         target_platform="xiaohongshu",
     )
 
     # PublishCrew 快速 kickoff
-    publish_result = PublishCrew.create().kickoff(
+    PublishCrew.create().kickoff(
         content_id="content_001",
         content_draft={
             "title": "测试标题",
@@ -178,7 +177,7 @@ def example_quick_kickoff():
     )
 
     # AnalyticsCrew 快速 kickoff
-    analytics_result = AnalyticsCrew.create().kickoff(
+    AnalyticsCrew.create().kickoff(
         content_ids=["content_001"],
         time_range="7d",
     )

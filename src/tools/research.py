@@ -87,4 +87,4 @@ class WeChatArticleSpider:
         return self._spider.batch_scrape(accounts, pages=pages, days=days, with_content=with_content)
 
 
-__all__ = ["WeChatSearchTool", "WeChatArticleSpider"]
+__all__ = ["WeChatArticleSpider", "WeChatSearchTool"]

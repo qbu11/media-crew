@@ -1,12 +1,56 @@
 """FastAPI application entry point."""
 
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+import logging
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from src.api.routes import (
+    accounts,
+    analytics,
+    clients,
+    content,
+    dashboard,
+    health,
+    images,
+    research,
+    search,
+    tasks,
+)
 from src.core.config import settings
-from src.api.routes import health, content, tasks, analytics, dashboard, research, search
-from pathlib import Path
+from src.services.scheduler import HotspotScheduler
+
+logger = logging.getLogger(__name__)
+
+static_dir = Path(__file__).parent.parent / "api" / "static"
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Application lifespan: startup and shutdown."""
+    logging.basicConfig(level=logging.INFO)
+    logger.info(
+        "Crew Media Ops starting on http://%s:%s",
+        settings.API_HOST,
+        settings.API_PORT,
+    )
+
+    scheduler = HotspotScheduler()
+    scheduler.start()
+    app.state.scheduler = scheduler
+    logger.info("Scheduler initialized")
+
+    yield
+
+    logger.info("Crew Media Ops shutting down")
+    if hasattr(app.state, "scheduler"):
+        app.state.scheduler.shutdown()
+        logger.info("Scheduler stopped")
+
 
 app = FastAPI(
     title="Crew Media Ops API",
@@ -14,6 +58,7 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -32,22 +77,9 @@ app.include_router(analytics.router)
 app.include_router(dashboard.router)
 app.include_router(research.router)
 app.include_router(search.router)
+app.include_router(clients.router)
+app.include_router(accounts.router)
+app.include_router(images.router)
 
 # Mount static files
-static_dir = Path(__file__).parent.parent / "api" / "static"
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Initialize application on startup."""
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    print(f"Crew Media Ops Dashboard starting on http://{settings.API_HOST}:{settings.API_PORT}")
-    print(f"Static files directory: {static_dir}")
-
-
-@app.on_event("shutdown")
-async def shutdown_event() -> None:
-    """Cleanup on shutdown."""
-    print("Crew Media Ops shutting down")

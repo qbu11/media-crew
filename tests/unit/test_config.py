@@ -1,13 +1,19 @@
 """Configuration tests."""
 
+import os
+
 import pytest
 
 from src.core.config import Settings, get_settings
 
 
 @pytest.mark.unit
-def test_default_settings() -> None:
+def test_default_settings(monkeypatch) -> None:
     """Default settings load correctly."""
+    # Clear environment variables that may override defaults
+    for key in ["API_PORT", "CREW_MAX_ITER", "DEFAULT_LANGUAGE", "APP_ENV"]:
+        monkeypatch.delenv(key, raising=False)
+
     s = Settings()
     assert s.APP_ENV == "development"
     assert s.API_PORT == 8000

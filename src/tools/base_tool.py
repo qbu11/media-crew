@@ -8,8 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Dict, List
-import json
+from typing import Any
 
 
 class ToolStatus(Enum):
@@ -34,14 +33,14 @@ class ToolResult:
         metadata: Additional metadata
     """
     status: ToolStatus
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
-    platform: Optional[str] = None
-    content_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] | None = None
+    error: str | None = None
+    platform: str | None = None
+    content_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         return {
             "status": self.status.value,
@@ -65,7 +64,7 @@ class ToolResult:
 class ToolError(Exception):
     """Base exception for tool errors"""
 
-    def __init__(self, message: str, platform: Optional[str] = None, details: Optional[Dict] = None):
+    def __init__(self, message: str, platform: str | None = None, details: dict | None = None):
         self.message = message
         self.platform = platform
         self.details = details or {}
@@ -98,7 +97,7 @@ class BaseTool(ABC):
     max_requests_per_minute: int = 10
     min_interval_seconds: float = 1.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """
         Initialize the tool.
 
@@ -106,9 +105,9 @@ class BaseTool(ABC):
             config: Tool-specific configuration
         """
         self.config = config or {}
-        self._last_execution: Optional[datetime] = None
+        self._last_execution: datetime | None = None
         self._execution_count = 0
-        self._execution_count_window: Optional[datetime] = None
+        self._execution_count_window: datetime | None = None
 
     @abstractmethod
     def execute(self, **kwargs) -> ToolResult:
@@ -123,7 +122,7 @@ class BaseTool(ABC):
         """
         pass
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """
         Validate input parameters.
 
@@ -135,7 +134,7 @@ class BaseTool(ABC):
         """
         return True, None
 
-    def check_rate_limit(self) -> tuple[bool, Optional[str]]:
+    def check_rate_limit(self) -> tuple[bool, str | None]:
         """
         Check if tool execution is within rate limits.
 
@@ -232,12 +231,12 @@ class BaseTool(ABC):
             return self.post_execute(
                 ToolResult(
                     status=ToolStatus.FAILED,
-                    error=f"Unexpected error: {str(e)}",
+                    error=f"Unexpected error: {e!s}",
                     platform=self.platform
                 )
             )
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """Get tool metadata"""
         return {
             "name": self.name,
@@ -262,9 +261,9 @@ class ConfigurableTool(BaseTool):
     """
 
     # Required configuration keys
-    required_config_keys: List[str] = []
+    required_config_keys: list[str] = []
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._load_config()
 

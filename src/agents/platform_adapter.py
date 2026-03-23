@@ -5,7 +5,7 @@ Platform Adapter Agent
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 
@@ -33,7 +33,7 @@ class PlatformAdapter(BaseAgent):
     """
 
     # 平台规格配置
-    PLATFORM_SPECS: Dict[Platform, Dict[str, Any]] = {
+    PLATFORM_SPECS: dict[Platform, dict[str, Any]] = {
         Platform.WECHAT: {
             "title_max_length": 64,
             "summary_max_length": 200,
@@ -87,7 +87,7 @@ class PlatformAdapter(BaseAgent):
     }
 
     # 工具占位符（具体工具由工具模块注入）
-    _tools: List[Any] = []
+    _tools: list[Any] = []
 
     def get_role(self) -> str:
         """返回 Agent 的角色定义。"""
@@ -114,7 +114,7 @@ B站的弹幕文化、知乎的专业讨论氛围、微博的广场效应。
         """返回默认的 LLM 模型。"""
         return self.DEFAULT_MODEL  # claude-sonnet-4-20250514
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """返回 Agent 可用的工具列表。"""
         # 工具列表（待工具模块实现后注入）
         # 预期工具：
@@ -124,7 +124,7 @@ B站的弹幕文化、知乎的专业讨论氛围、微博的广场效应。
         return self._tools if self._tools else self.tools
 
     @classmethod
-    def set_tools(cls, tools: List[Any]) -> None:
+    def set_tools(cls, tools: list[Any]) -> None:
         """
         设置类级别的工具列表。
 
@@ -134,7 +134,7 @@ B站的弹幕文化、知乎的专业讨论氛围、微博的广场效应。
         cls._tools = tools
 
     @classmethod
-    def get_platform_specs(cls, platform: Platform) -> Dict[str, Any]:
+    def get_platform_specs(cls, platform: Platform) -> dict[str, Any]:
         """
         获取平台规格配置。
 
@@ -160,9 +160,9 @@ class AdaptedContent:
         title: str,
         content: str,
         summary: str,
-        tags: List[str],
-        cover_image: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        tags: list[str],
+        cover_image: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         """
         初始化适配后内容。

@@ -515,7 +515,7 @@ class TestContentCrewIntegration:
         """
         crew = ContentCrew()
 
-        mock_outputs = MagicMock(spec=[])  # No tasks_output attribute
+        mock_outputs = MagicMock(spec=["to_dict"])  # No tasks_output attribute, but has to_dict
         mock_outputs.to_dict.return_value = {"output": "basic"}
 
         result = crew._parse_outputs(mock_outputs)

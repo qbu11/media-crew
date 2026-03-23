@@ -9,10 +9,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Dict, List
-import json
+from typing import Any
 
-from ..base_tool import BaseTool, ToolResult, ToolError, ToolStatus
+from ..base_tool import BaseTool, ToolResult, ToolStatus
 
 
 class ContentType(Enum):
@@ -53,16 +52,16 @@ class PublishContent:
     title: str
     body: str
     content_type: ContentType = ContentType.TEXT
-    images: List[str] = field(default_factory=list)
-    video: Optional[str] = None
-    cover_image: Optional[str] = None
-    tags: List[str] = field(default_factory=list)
-    topics: List[str] = field(default_factory=list)
-    location: Optional[str] = None
-    mentions: List[str] = field(default_factory=list)
-    custom_fields: Dict[str, Any] = field(default_factory=dict)
+    images: list[str] = field(default_factory=list)
+    video: str | None = None
+    cover_image: str | None = None
+    tags: list[str] = field(default_factory=list)
+    topics: list[str] = field(default_factory=list)
+    location: str | None = None
+    mentions: list[str] = field(default_factory=list)
+    custom_fields: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         return {
             "title": self.title,
@@ -79,7 +78,7 @@ class PublishContent:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PublishContent":
+    def from_dict(cls, data: dict[str, Any]) -> "PublishContent":
         """Create from dictionary"""
         if isinstance(data.get("content_type"), str):
             data["content_type"] = ContentType(data["content_type"])
@@ -93,13 +92,13 @@ class PublishResult(ToolResult):
 
     Extends ToolResult with platform-specific publishing details.
     """
-    content_id: Optional[str] = None
-    content_url: Optional[str] = None
-    preview_url: Optional[str] = None
-    published_at: Optional[datetime] = None
-    status_detail: Optional[str] = None  # e.g., "审核中", "已发布"
+    content_id: str | None = None
+    content_url: str | None = None
+    preview_url: str | None = None
+    published_at: datetime | None = None
+    status_detail: str | None = None  # e.g., "审核中", "已发布"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         result = super().to_dict()
         result.update({
@@ -144,11 +143,11 @@ class AnalyticsData:
     reach: int = 0
     impressions: int = 0
     click_through_rate: float = 0.0
-    period_start: Optional[datetime] = None
-    period_end: Optional[datetime] = None
-    raw_data: Dict[str, Any] = field(default_factory=dict)
+    period_start: datetime | None = None
+    period_end: datetime | None = None
+    raw_data: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         return {
             "content_id": self.content_id,
@@ -181,7 +180,7 @@ class BasePlatformTool(BaseTool, ABC):
     max_body_length: int = 10000
     max_images: int = 9
     max_tags: int = 10
-    supported_content_types: List[ContentType] = [ContentType.TEXT, ContentType.IMAGE]
+    supported_content_types: list[ContentType] = [ContentType.TEXT, ContentType.IMAGE]
 
     @abstractmethod
     def authenticate(self) -> ToolResult:
@@ -266,7 +265,7 @@ class BasePlatformTool(BaseTool, ABC):
             return AuthStatus.NOT_AUTHENTICATED
         return AuthStatus.ERROR
 
-    def validate_content(self, content: PublishContent) -> tuple[bool, Optional[str]]:
+    def validate_content(self, content: PublishContent) -> tuple[bool, str | None]:
         """
         Validate content against platform constraints.
 
@@ -318,7 +317,7 @@ class BasePlatformTool(BaseTool, ABC):
 
         return self.publish(content)
 
-    def get_constraints(self) -> Dict[str, Any]:
+    def get_constraints(self) -> dict[str, Any]:
         """Get platform constraints"""
         return {
             "platform": self.platform,

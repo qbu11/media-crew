@@ -13,17 +13,17 @@ Safety constraints (from media-publish-weibo skill):
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
+from ..base_tool import ToolResult, ToolStatus
 from .base import (
+    AnalyticsData,
+    AuthStatus,
     BasePlatformTool,
+    ContentType,
     PublishContent,
     PublishResult,
-    AnalyticsData,
-    ContentType,
-    AuthStatus
 )
-from ..base_tool import ToolResult, ToolStatus
 
 
 class WeiboTool(BasePlatformTool):
@@ -54,7 +54,7 @@ class WeiboTool(BasePlatformTool):
     home_url = "https://weibo.com"
     article_url = "https://weibo.com/article/publish"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._auth_status = AuthStatus.NOT_AUTHENTICATED
 
@@ -76,7 +76,7 @@ class WeiboTool(BasePlatformTool):
             self._auth_status = AuthStatus.ERROR
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Authentication failed: {str(e)}",
+                error=f"Authentication failed: {e!s}",
                 platform=self.platform
             )
 
@@ -111,7 +111,7 @@ class WeiboTool(BasePlatformTool):
 
         try:
             # Format content with topics
-            formatted_body = self._format_content(content)
+            self._format_content(content)
 
             # In actual implementation: use chrome-devtools MCP
             return PublishResult(
@@ -131,7 +131,7 @@ class WeiboTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Publishing failed: {str(e)}",
+                error=f"Publishing failed: {e!s}",
                 platform=self.platform
             )
 
@@ -146,7 +146,7 @@ class WeiboTool(BasePlatformTool):
 
         return body
 
-    def publish_article(self, title: str, content: str, cover_image: str = None) -> PublishResult:
+    def publish_article(self, title: str, content: str, cover_image: str | None = None) -> PublishResult:
         """
         Publish a Weibo long article (头条文章).
 

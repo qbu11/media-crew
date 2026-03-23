@@ -6,7 +6,7 @@ Data Analyst Agent
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 from .platform_adapter import Platform
@@ -40,7 +40,7 @@ class DataAnalyst(BaseAgent):
     """
 
     # 工具占位符（具体工具由工具模块注入）
-    _tools: List[Any] = []
+    _tools: list[Any] = []
 
     def get_role(self) -> str:
         """返回 Agent 的角色定义。"""
@@ -67,7 +67,7 @@ class DataAnalyst(BaseAgent):
         """返回默认的 LLM 模型。"""
         return self.DEFAULT_MODEL  # claude-sonnet-4-20250514
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """返回 Agent 可用的工具列表。"""
         # 工具列表（待工具模块实现后注入）
         # 预期工具：
@@ -77,7 +77,7 @@ class DataAnalyst(BaseAgent):
         return self._tools if self._tools else self.tools
 
     @classmethod
-    def set_tools(cls, tools: List[Any]) -> None:
+    def set_tools(cls, tools: list[Any]) -> None:
         """
         设置类级别的工具列表。
 
@@ -98,7 +98,7 @@ class ContentMetrics:
         self,
         content_id: str,
         platform: Platform,
-        metrics: Dict[MetricType, float],
+        metrics: dict[MetricType, float],
         recorded_at: datetime,
         time_range: str = "24h",  # 24h, 7d, 30d
     ):
@@ -118,7 +118,7 @@ class ContentMetrics:
         self.recorded_at = recorded_at
         self.time_range = time_range
 
-    def get_metric(self, metric_type: MetricType) -> Optional[float]:
+    def get_metric(self, metric_type: MetricType) -> float | None:
         """
         获取指定指标的值。
 
@@ -173,11 +173,11 @@ class AnalysisReport:
         report_type: str,
         period: str,
         summary: str,
-        key_findings: List[str],
-        metrics_summary: Dict[str, Any],
-        top_performers: List[Dict[str, Any]],
-        underperformers: List[Dict[str, Any]],
-        recommendations: List[str],
+        key_findings: list[str],
+        metrics_summary: dict[str, Any],
+        top_performers: list[dict[str, Any]],
+        underperformers: list[dict[str, Any]],
+        recommendations: list[str],
         generated_at: datetime,
     ):
         """

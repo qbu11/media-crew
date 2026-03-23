@@ -1,8 +1,5 @@
 """Application entry point with scheduler support."""
 
-import asyncio
-import signal
-import sys
 
 import uvicorn
 

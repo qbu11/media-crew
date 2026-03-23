@@ -9,21 +9,12 @@ Supports two methods:
 Reuses logic from baoyu-post-to-wechat skill.
 """
 
-import json
-import os
-import subprocess
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+import os
+from typing import Any
 
-from .base import (
-    BasePlatformTool,
-    PublishContent,
-    PublishResult,
-    AnalyticsData,
-    ContentType,
-    AuthStatus
-)
-from ..base_tool import ToolResult, ToolStatus, ToolError
+from ..base_tool import ToolResult, ToolStatus
+from .base import AnalyticsData, BasePlatformTool, ContentType, PublishContent, PublishResult
 
 
 class PublishMethod:
@@ -58,7 +49,7 @@ class WechatTool(BasePlatformTool):
     # Skill directory for baoyu-post-to-wechat scripts
     SKILL_DIR = os.path.expanduser("~/.claude/skills/baoyu-post-to-wechat")
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._publish_method = self.config.get("publish_method", PublishMethod.API)
         self._app_id = self.config.get("app_id") or os.environ.get("WECHAT_APP_ID")
@@ -71,7 +62,7 @@ class WechatTool(BasePlatformTool):
         """Check if API credentials are available"""
         return bool(self._app_id and self._app_secret)
 
-    def _load_extend_config(self) -> Dict[str, str]:
+    def _load_extend_config(self) -> dict[str, str]:
         """Load EXTEND.md configuration (baoyu-skills convention)"""
         config = {}
         extend_paths = [
@@ -81,7 +72,7 @@ class WechatTool(BasePlatformTool):
 
         for path in extend_paths:
             if os.path.exists(path):
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         if ":" in line and not line.startswith("#"):
@@ -195,7 +186,7 @@ class WechatTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"API publish failed: {str(e)}",
+                error=f"API publish failed: {e!s}",
                 platform=self.platform
             )
 
@@ -235,7 +226,7 @@ class WechatTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Browser publish failed: {str(e)}",
+                error=f"Browser publish failed: {e!s}",
                 platform=self.platform
             )
 

@@ -6,13 +6,10 @@ Uses Sougou WeChat search + DrissionPage for Chrome automation.
 No WeChat login required.
 """
 
-import asyncio
-import json
-import subprocess
-import shutil
 from datetime import datetime
+import json
 from pathlib import Path
-from typing import Any
+import subprocess
 
 from pydantic import BaseModel
 

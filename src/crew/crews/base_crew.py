@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, TypeVar
+from typing import Any, TypeVar
 
 from crewai import Crew, Process
 from loguru import logger
@@ -32,11 +32,11 @@ class CrewInput:
     标准化所有 Crew 的输入格式。
     """
 
-    inputs: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    context: Optional[Dict[str, Any]] = None
+    inputs: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典格式。"""
         return {
             "inputs": self.inputs,
@@ -45,7 +45,7 @@ class CrewInput:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CrewInput":
+    def from_dict(cls, data: dict[str, Any]) -> "CrewInput":
         """从字典创建实例。"""
         return cls(
             inputs=data.get("inputs", {}),
@@ -63,14 +63,14 @@ class CrewResult:
     """
 
     status: CrewStatus
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
-    raw_outputs: Optional[Dict[str, Any]] = None
-    execution_time: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] | None = None
+    error: str | None = None
+    raw_outputs: dict[str, Any] | None = None
+    execution_time: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典格式。"""
         return {
             "status": self.status.value,
@@ -106,7 +106,7 @@ class BaseCrew(ABC):
         verbose: bool = True,
         process: Process = Process.sequential,
         memory: bool = True,
-        max_rpm: Optional[int] = None,
+        max_rpm: int | None = None,
         share_crew: bool = False,
     ):
         """
@@ -124,11 +124,11 @@ class BaseCrew(ABC):
         self.memory = memory
         self.max_rpm = max_rpm
         self.share_crew = share_crew
-        self._crew: Optional[Crew] = None
+        self._crew: Crew | None = None
         self._status: CrewStatus = CrewStatus.PENDING
 
     @abstractmethod
-    def get_agents(self) -> List[Any]:
+    def get_agents(self) -> list[Any]:
         """
         返回 Crew 的 Agent 列表。
 
@@ -137,7 +137,7 @@ class BaseCrew(ABC):
         """
 
     @abstractmethod
-    def get_tasks(self, inputs: CrewInput) -> List[Any]:
+    def get_tasks(self, inputs: CrewInput) -> list[Any]:
         """
         根据 Crew 输入返回任务列表。
 
@@ -179,7 +179,7 @@ class BaseCrew(ABC):
         """
         return f"{self.get_crew_name()} Crew"
 
-    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, Optional[str]]:
+    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, str | None]:
         """
         验证输入参数。
 
@@ -318,7 +318,7 @@ class BaseCrew(ABC):
         crew_input = CrewInput(inputs=inputs)
         return self.execute(crew_input)
 
-    def _parse_outputs(self, outputs: Any) -> Dict[str, Any]:
+    def _parse_outputs(self, outputs: Any) -> dict[str, Any]:
         """
         解析 Crew 输出。
 
@@ -339,7 +339,7 @@ class BaseCrew(ABC):
         else:
             return {"raw": str(outputs)}
 
-    def _extract_raw_outputs(self, outputs: Any) -> Dict[str, Any]:
+    def _extract_raw_outputs(self, outputs: Any) -> dict[str, Any]:
         """
         提取原始输出用于调试。
 

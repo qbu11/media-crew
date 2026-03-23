@@ -4,30 +4,24 @@ Error handling utilities for Crew Media Ops.
 提供统一的错误处理、重试逻辑和 Result 类型。
 """
 
+from collections.abc import Callable
 import functools
 import logging
 import random
 import time
-from typing import Any, Callable, Optional, TypeVar, Union
+from typing import Any, TypeVar, Union
 
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from src.core.exceptions import (
+    BrowserCrashError,
     CrewException,
-    RateLimitError,
-    TimeoutError,
-    AuthenticationError,
-    DiskFullError,
+    DeadlockError,
     LLMTimeoutError,
     NetworkTimeoutError,
-    BrowserCrashError,
-    DeadlockError,
     PoolExhaustedError,
+    RateLimitError,
+    TimeoutError,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,8 +40,8 @@ class Success[T]:
     def __init__(self, data: T):
         self.data = data
         self.success = True
-        self.error: Optional[str] = None
-        self.error_code: Optional[str] = None
+        self.error: str | None = None
+        self.error_code: str | None = None
 
     def __repr__(self) -> str:
         return f"Success(data={self.data!r})"
@@ -60,7 +54,7 @@ class Error:
         self,
         error: str,
         error_code: str,
-        details: Optional[dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ):
         self.data: Any = None
         self.success = False
@@ -83,7 +77,7 @@ def success(data: T) -> Success[T]:
 def error(
     message: str,
     error_code: str,
-    details: Optional[dict[str, Any]] = None,
+    details: dict[str, Any] | None = None,
 ) -> Error:
     """创建错误结果。"""
     return Error(message, error_code, details)
@@ -163,7 +157,7 @@ def jitter(min_seconds: float = 0.5, max_seconds: float = 2.0) -> None:
 def safe_execute(
     func: Callable[..., T],
     *args: Any,
-    default: Optional[T] = None,
+    default: T | None = None,
     log_errors: bool = True,
     **kwargs: Any,
 ) -> Result[T]:
@@ -196,7 +190,7 @@ def safe_execute(
 async def safe_execute_async(
     func: Callable[..., T],
     *args: Any,
-    default: Optional[T] = None,
+    default: T | None = None,
     log_errors: bool = True,
     **kwargs: Any,
 ) -> Result[T]:
@@ -241,8 +235,8 @@ class ErrorContext:
         self.context = context
         self.result: Any = None
         self.success = True
-        self.error: Optional[str] = None
-        self.error_code: Optional[str] = None
+        self.error: str | None = None
+        self.error_code: str | None = None
 
     def __enter__(self) -> "ErrorContext":
         return self
@@ -323,7 +317,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.is_open = False
 
     def record_success(self) -> None:
@@ -367,7 +361,7 @@ class CircuitBreaker:
                 result = func(*args, **kwargs)
                 self.record_success()
                 return result
-            except Exception as e:
+            except Exception:
                 self.record_failure()
                 raise
 

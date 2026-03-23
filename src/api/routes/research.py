@@ -38,7 +38,7 @@ class BatchScrapeRequest(BaseModel):
 @router.get("/status")
 async def get_research_status() -> dict[str, Any]:
     """Check availability of research tools."""
-    from src.tools.research import WeChatSearchTool, WeChatArticleSpider
+    from src.tools.research import WeChatArticleSpider, WeChatSearchTool
 
     search_tool = WeChatSearchTool()
     spider = WeChatArticleSpider()

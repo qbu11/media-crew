@@ -7,15 +7,12 @@ Provides search and competitor monitoring for all platforms:
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
-from pathlib import Path
-from typing import Any
 from dataclasses import dataclass
+from datetime import datetime
 import json
-import subprocess
+from pathlib import Path
 import shutil
-
-from pydantic import BaseModel
+import subprocess
 
 
 @dataclass
@@ -139,7 +136,7 @@ class XiaohongshuSearch(BasePlatformSearch):
         if not skill_path.exists():
             return SearchResponse("xiaohongshu", keyword, 0, [], datetime.now())
 
-        result = subprocess.run(
+        subprocess.run(
             ["python", str(skill_path), keyword, "--limit", str(limit)],
             capture_output=True,
             text=True,
@@ -521,7 +518,7 @@ def search_all_platforms(keyword: str, limit: int = 20) -> dict[str, SearchRespo
         try:
             searcher = searcher_class()
             results[platform] = searcher.search(keyword, limit)
-        except Exception as e:
+        except Exception:
             results[platform] = SearchResponse(platform, keyword, 0, [], datetime.now())
     return results
 

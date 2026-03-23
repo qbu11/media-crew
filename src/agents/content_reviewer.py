@@ -5,7 +5,7 @@ Content Reviewer Agent
 """
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 
@@ -31,12 +31,12 @@ class ContentReviewer(BaseAgent):
     """
 
     # 工具占位符（具体工具由工具模块注入）
-    _tools: List[Any] = []
+    _tools: list[Any] = []
 
     def __init__(
         self,
-        llm: Optional[str] = None,
-        tools: Optional[List[Any]] = None,
+        llm: str | None = None,
+        tools: list[Any] | None = None,
         verbose: bool = True,
         allow_delegation: bool = False,
         human_input: bool = True,  # 默认启用人工输入
@@ -83,7 +83,7 @@ class ContentReviewer(BaseAgent):
         """返回默认的 LLM 模型。"""
         return self.DEFAULT_MODEL  # claude-sonnet-4-20250514
 
-    def get_tools(self) -> List[Any]:
+    def get_tools(self) -> list[Any]:
         """返回 Agent 可用的工具列表。"""
         # 工具列表（待工具模块实现后注入）
         # 预期工具：
@@ -93,7 +93,7 @@ class ContentReviewer(BaseAgent):
         return self._tools if self._tools else self.tools
 
     @classmethod
-    def set_tools(cls, tools: List[Any]) -> None:
+    def set_tools(cls, tools: list[Any]) -> None:
         """
         设置类级别的工具列表。
 
@@ -116,9 +116,9 @@ class ReviewReport:
         quality_score: float,
         compliance_score: float,
         spread_score: float,
-        issues: List[Dict[str, Any]],
-        suggestions: List[str],
-        highlights: List[str],
+        issues: list[dict[str, Any]],
+        suggestions: list[str],
+        highlights: list[str],
         reviewer_notes: str,
     ):
         """

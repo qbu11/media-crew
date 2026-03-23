@@ -5,15 +5,15 @@ Analytics Crew Module
 """
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from crewai import Process, Task
 from loguru import logger
 
 from src.agents import DataAnalyst
-from src.agents.data_analyst import MetricType
 from src.agents.platform_adapter import Platform
-from src.tools import data_collect_tool, analytics_report_tool
+from src.tools import analytics_report_tool, data_collect_tool
+
 from .base_crew import BaseCrew, CrewInput, CrewResult, CrewStatus
 
 
@@ -31,10 +31,10 @@ class AnalyticsCrewInput(CrewInput):
 
     def __init__(
         self,
-        content_ids: List[str],
+        content_ids: list[str],
         time_range: str = "7d",
-        platforms: Optional[List[str]] = None,
-        metrics: Optional[List[str]] = None,
+        platforms: list[str] | None = None,
+        metrics: list[str] | None = None,
         report_format: str = "json",
         **kwargs,
     ):
@@ -63,9 +63,9 @@ class AnalyticsCrewResult(CrewResult):
     def __init__(
         self,
         status: CrewStatus,
-        collected_data: Optional[List[Dict[str, Any]]] = None,
-        analysis_report: Optional[Dict[str, Any]] = None,
-        recommendations: Optional[List[str]] = None,
+        collected_data: list[dict[str, Any]] | None = None,
+        analysis_report: dict[str, Any] | None = None,
+        recommendations: list[str] | None = None,
         **kwargs,
     ):
         super().__init__(status=status, **kwargs)
@@ -83,17 +83,17 @@ class AnalyticsCrewResult(CrewResult):
         })
 
     @property
-    def top_performers(self) -> List[Dict[str, Any]]:
+    def top_performers(self) -> list[dict[str, Any]]:
         """获取表现最佳的内容列表。"""
         return self.analysis_report.get("top_performers", [])
 
     @property
-    def underperformers(self) -> List[Dict[str, Any]]:
+    def underperformers(self) -> list[dict[str, Any]]:
         """获取表现不佳的内容列表。"""
         return self.analysis_report.get("underperformers", [])
 
     @property
-    def key_findings(self) -> List[str]:
+    def key_findings(self) -> list[str]:
         """获取关键发现列表。"""
         return self.analysis_report.get("key_findings", [])
 
@@ -152,8 +152,8 @@ class AnalyticsCrew(BaseCrew):
         verbose: bool = True,
         process: Process = Process.sequential,
         memory: bool = True,
-        max_rpm: Optional[int] = 30,
-        llm: Optional[str] = None,
+        max_rpm: int | None = 30,
+        llm: str | None = None,
     ):
         """
         初始化 AnalyticsCrew。
@@ -180,7 +180,7 @@ class AnalyticsCrew(BaseCrew):
         ]
 
         # 缓存采集的数据
-        self._collected_data: List[Dict[str, Any]] = []
+        self._collected_data: list[dict[str, Any]] = []
 
     def get_crew_name(self) -> str:
         """返回 Crew 名称。"""
@@ -190,7 +190,7 @@ class AnalyticsCrew(BaseCrew):
         """返回 Crew 描述。"""
         return "分析线：数据采集 → 数据分析 → 优化建议"
 
-    def get_agents(self) -> List[Any]:
+    def get_agents(self) -> list[Any]:
         """
         返回 Crew 的 Agent 列表。
 
@@ -229,7 +229,7 @@ class AnalyticsCrew(BaseCrew):
 
         return [data_collector, data_analyzer, strategy_advisor]
 
-    def get_tasks(self, inputs: CrewInput) -> List[Any]:
+    def get_tasks(self, inputs: CrewInput) -> list[Any]:
         """
         根据 Crew 输入返回任务列表。
 
@@ -362,7 +362,7 @@ class AnalyticsCrew(BaseCrew):
 
         return [collect_task, analyze_task, advise_task]
 
-    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, Optional[str]]:
+    def validate_inputs(self, inputs: CrewInput) -> tuple[bool, str | None]:
         """
         验证输入参数。
 
@@ -421,7 +421,7 @@ class AnalyticsCrew(BaseCrew):
 
         return result
 
-    def _parse_outputs(self, outputs: Any) -> Dict[str, Any]:
+    def _parse_outputs(self, outputs: Any) -> dict[str, Any]:
         """
         解析 Crew 输出。
 
@@ -466,7 +466,7 @@ class AnalyticsCrew(BaseCrew):
 
         return result
 
-    def _extract_task_output(self, task_output: Any) -> Dict[str, Any]:
+    def _extract_task_output(self, task_output: Any) -> dict[str, Any]:
         """
         提取任务输出。
 
@@ -522,7 +522,7 @@ class AnalyticsCrew(BaseCrew):
     @classmethod
     def create(
         cls,
-        llm: Optional[str] = None,
+        llm: str | None = None,
         **kwargs,
     ) -> "AnalyticsCrew":
         """
@@ -537,7 +537,7 @@ class AnalyticsCrew(BaseCrew):
         """
         return cls(llm=llm, **kwargs)
 
-    def get_quick_stats(self, content_ids: List[str]) -> Dict[str, Any]:
+    def get_quick_stats(self, content_ids: list[str]) -> dict[str, Any]:
         """
         快速获取内容统计。
 

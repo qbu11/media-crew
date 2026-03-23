@@ -3,12 +3,11 @@
 支持: 小红书、微博、知乎、B站、抖音
 """
 
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
-from typing import Tuple, List, Dict, Optional, Literal
 from dataclasses import dataclass
 from enum import Enum
 import os
-import math
+
+from PIL import Image, ImageDraw, ImageFont
 
 # ============ 平台配置 ============
 
@@ -25,9 +24,9 @@ class PlatformConfig:
     name: str
     width: int
     height: int
-    cover_size: Tuple[int, int]
-    info_size: Tuple[int, int]
-    card_size: Tuple[int, int]
+    cover_size: tuple[int, int]
+    info_size: tuple[int, int]
+    card_size: tuple[int, int]
     font_scale: float  # 字体缩放系数
 
 PLATFORM_CONFIGS = {
@@ -143,7 +142,7 @@ class FontManager:
         "/System/Library/Fonts/Helvetica.ttc",
     ]
 
-    _cache: Dict[int, ImageFont.FreeTypeFont] = {}
+    _cache: dict[int, ImageFont.FreeTypeFont] = {}
 
     @classmethod
     def get_font(cls, size: int, prefer_cn: bool = True) -> ImageFont.FreeTypeFont:
@@ -182,8 +181,8 @@ class BaseRenderer:
 
     def create_gradient_background(
         self,
-        color1: Tuple[int, int, int],
-        color2: Tuple[int, int, int],
+        color1: tuple[int, int, int],
+        color2: tuple[int, int, int],
         direction: str = "vertical"
     ) -> None:
         """创建渐变背景"""
@@ -211,7 +210,7 @@ class BaseRenderer:
         text: str,
         y: int,
         font_size: int,
-        color: Tuple[int, int, int],
+        color: tuple[int, int, int],
         bold: bool = False
     ) -> int:
         """居中绘制文字,返回文字高度"""
@@ -225,10 +224,10 @@ class BaseRenderer:
 
     def draw_rounded_rect(
         self,
-        coords: Tuple[int, int, int, int],
+        coords: tuple[int, int, int, int],
         radius: int = 20,
-        fill: Optional[Tuple[int, int, int]] = None,
-        outline: Optional[Tuple[int, int, int]] = None,
+        fill: tuple[int, int, int] | None = None,
+        outline: tuple[int, int, int] | None = None,
         width: int = 1
     ) -> None:
         """绘制圆角矩形"""
@@ -258,8 +257,8 @@ class CoverImageGenerator:
     def generate(
         self,
         title: str,
-        subtitle: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        subtitle: str | None = None,
+        tags: list[str] | None = None,
         style: str = "gradient"
     ) -> Image.Image:
         """生成封面图"""
@@ -323,9 +322,9 @@ class InfoImageGenerator:
     def generate_comparison_table(
         self,
         title: str,
-        headers: List[str],
-        rows: List[List[str]],
-        highlight_col: Optional[int] = None
+        headers: list[str],
+        rows: list[list[str]],
+        highlight_col: int | None = None
     ) -> Image.Image:
         """生成对比表格"""
         width, height = self.config.info_size
@@ -420,7 +419,7 @@ class CardImageGenerator:
     def generate_highlight_cards(
         self,
         title: str,
-        highlights: List[Dict[str, str]]
+        highlights: list[dict[str, str]]
     ) -> Image.Image:
         """生成亮点卡片列表"""
         width, height = self.config.card_size
@@ -523,8 +522,8 @@ class SummaryImageGenerator:
     def generate_recommendations(
         self,
         title: str,
-        recommendations: List[Tuple[str, str, str]],  # (场景, 推荐, 原因)
-        slogan: Optional[str] = None
+        recommendations: list[tuple[str, str, str]],  # (场景, 推荐, 原因)
+        slogan: str | None = None
     ) -> Image.Image:
         """生成推荐建议图"""
         width, height = self.config.card_size
@@ -566,7 +565,7 @@ class SummaryImageGenerator:
             # 箭头
             arrow_text = "->"
             bbox = renderer.draw.textbbox((0, 0), arrow_text, font=FontManager.get_font(scenario_font))
-            arrow_width = bbox[2] - bbox[0]
+            bbox[2] - bbox[0]
             renderer.draw.text(
                 (left_margin + int(180 * font_scale), y),
                 arrow_text,
@@ -620,8 +619,8 @@ class ImageGenerator:
     def generate_cover(
         self,
         title: str,
-        subtitle: Optional[str] = None,
-        tags: Optional[List[str]] = None,
+        subtitle: str | None = None,
+        tags: list[str] | None = None,
         style: str = "gradient"
     ) -> Image.Image:
         """生成封面图"""
@@ -631,9 +630,9 @@ class ImageGenerator:
     def generate_comparison(
         self,
         title: str,
-        headers: List[str],
-        rows: List[List[str]],
-        highlight_col: Optional[int] = None
+        headers: list[str],
+        rows: list[list[str]],
+        highlight_col: int | None = None
     ) -> Image.Image:
         """生成对比表格"""
         generator = InfoImageGenerator(self.platform, self.color_scheme)
@@ -642,7 +641,7 @@ class ImageGenerator:
     def generate_highlights(
         self,
         title: str,
-        highlights: List[Dict[str, str]]
+        highlights: list[dict[str, str]]
     ) -> Image.Image:
         """生成亮点卡片"""
         generator = CardImageGenerator(self.platform, self.color_scheme)
@@ -651,8 +650,8 @@ class ImageGenerator:
     def generate_summary(
         self,
         title: str,
-        recommendations: List[Tuple[str, str, str]],
-        slogan: Optional[str] = None
+        recommendations: list[tuple[str, str, str]],
+        slogan: str | None = None
     ) -> Image.Image:
         """生成总结建议图"""
         generator = SummaryImageGenerator(self.platform, self.color_scheme)
@@ -662,7 +661,7 @@ class ImageGenerator:
         self,
         content: dict,
         output_dir: str
-    ) -> List[str]:
+    ) -> list[str]:
         """根据内容自动生成全套图片"""
         os.makedirs(output_dir, exist_ok=True)
         paths = []
@@ -724,7 +723,7 @@ def generate_for_platform(
     content: dict,
     output_dir: str,
     color_scheme: str = "tech"
-) -> List[str]:
+) -> list[str]:
     """便捷函数: 为指定平台生成图片"""
     generator = ImageGenerator(platform, color_scheme)
     return generator.generate_all_for_content(content, output_dir)

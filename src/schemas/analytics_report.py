@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from src.schemas.content_brief import PlatformType
 
@@ -54,18 +54,16 @@ class MetricValue(BaseModel):
     change_percent: float | None = Field(default=None, description="Percentage change")
     trend: TrendDirection = Field(default=TrendDirection.STABLE, description="Trend direction")
 
-    @field_validator("change_percent")
-    @classmethod
-    def calculate_change(cls, v: float | None, info: Any) -> float | None:
+    @model_validator(mode="after")
+    def calculate_change(self) -> "MetricValue":
         """Calculate percentage change if not provided."""
-        if v is not None:
-            return v
-        data = info.data
-        if data.get("previous_value") and data["previous_value"] > 0:
-            return round(
-                ((data["value"] - data["previous_value"]) / data["previous_value"]) * 100, 2
+        if self.change_percent is not None:
+            return self
+        if self.previous_value is not None and self.previous_value > 0:
+            self.change_percent = round(
+                ((self.value - self.previous_value) / self.previous_value) * 100, 2
             )
-        return None
+        return self
 
 
 class EngagementRate(BaseModel):

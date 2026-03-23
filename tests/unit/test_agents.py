@@ -19,7 +19,7 @@ from src.agents.content_reviewer import (
     ReviewReport,
     ReviewResult,
 )
-from src.agents.content_writer import ContentDraft
+from src.agents.content_writer import ContentWriter, ContentDraft
 from src.agents.data_analyst import (
     AnalysisReport,
     ContentMetrics,

@@ -7,11 +7,10 @@ Provides tools for:
 - SEO optimization
 """
 
+from enum import Enum
 import json
 import re
-from datetime import datetime
-from typing import Any, Dict, List, Optional
-from enum import Enum
+from typing import Any
 
 from .base_tool import BaseTool, ToolResult, ToolStatus
 
@@ -38,11 +37,11 @@ class ImageSearchTool(BaseTool):
     max_requests_per_minute = 10
     min_interval_seconds = 3.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._api_key = self.config.get("api_key")
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         query = kwargs.get("query")
         if not query:
@@ -108,7 +107,7 @@ class ImageSearchTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Image search failed: {str(e)}",
+                error=f"Image search failed: {e!s}",
                 platform="multi"
             )
 
@@ -137,10 +136,10 @@ class HashtagSuggestTool(BaseTool):
     max_requests_per_minute = 10
     min_interval_seconds = 2.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         content = kwargs.get("content")
         if not content:
@@ -193,11 +192,11 @@ class HashtagSuggestTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Hashtag suggestion failed: {str(e)}",
+                error=f"Hashtag suggestion failed: {e!s}",
                 platform=platform
             )
 
-    def _extract_keywords(self, content: str) -> List[str]:
+    def _extract_keywords(self, content: str) -> list[str]:
         """Extract keywords from content"""
         # Simple keyword extraction
         # In actual implementation, use NLP library
@@ -208,10 +207,10 @@ class HashtagSuggestTool(BaseTool):
 
     def _generate_hashtags(
         self,
-        keywords: List[str],
+        keywords: list[str],
         platform: str,
         max_tags: int
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate hashtag suggestions"""
         hashtags = []
 
@@ -228,7 +227,7 @@ class HashtagSuggestTool(BaseTool):
 
         return hashtags
 
-    def _get_trending_tags(self, platform: str) -> List[str]:
+    def _get_trending_tags(self, platform: str) -> list[str]:
         """Get trending tags for platform"""
         # In actual implementation, fetch from platform API
         return ["热门", "推荐", "每日精选"]
@@ -249,10 +248,10 @@ class SEOOptimizeTool(BaseTool):
     max_requests_per_minute = 10
     min_interval_seconds = 2.0
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
 
-    def validate_input(self, **kwargs) -> tuple[bool, Optional[str]]:
+    def validate_input(self, **kwargs) -> tuple[bool, str | None]:
         """Validate input parameters"""
         content = kwargs.get("content")
         if not content:
@@ -303,7 +302,7 @@ class SEOOptimizeTool(BaseTool):
         except Exception as e:
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"SEO optimization failed: {str(e)}",
+                error=f"SEO optimization failed: {e!s}",
                 platform="multi"
             )
 
@@ -311,8 +310,8 @@ class SEOOptimizeTool(BaseTool):
         self,
         content: str,
         title: str,
-        target_keywords: List[str]
-    ) -> Dict[str, Any]:
+        target_keywords: list[str]
+    ) -> dict[str, Any]:
         """Analyze content for SEO factors"""
         word_count = len(content)
         title_length = len(title)
@@ -339,9 +338,9 @@ class SEOOptimizeTool(BaseTool):
 
     def _generate_recommendations(
         self,
-        analysis: Dict[str, Any],
+        analysis: dict[str, Any],
         content_type: str
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Generate SEO recommendations"""
         recommendations = []
 
@@ -391,7 +390,7 @@ class SEOOptimizeTool(BaseTool):
 
         return recommendations
 
-    def _calculate_seo_score(self, analysis: Dict[str, Any]) -> int:
+    def _calculate_seo_score(self, analysis: dict[str, Any]) -> int:
         """Calculate overall SEO score (0-100)"""
         score = 50  # Base score
 
@@ -441,7 +440,7 @@ class SEOOptimizeTool(BaseTool):
         else:
             return 50
 
-    def _optimize_title(self, title: str, keywords: List[str]) -> str:
+    def _optimize_title(self, title: str, keywords: list[str]) -> str:
         """Generate optimized title suggestion"""
         if not title:
             return ""
@@ -453,7 +452,7 @@ class SEOOptimizeTool(BaseTool):
 
         return title
 
-    def _suggest_keywords(self, content: str) -> List[str]:
+    def _suggest_keywords(self, content: str) -> list[str]:
         """Suggest keywords based on content"""
         # Simple implementation
         words = re.findall(r"\w+", content.lower())

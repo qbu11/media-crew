@@ -9,17 +9,17 @@ This tool handles video submissions with proper metadata.
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
+from ..base_tool import ToolResult, ToolStatus
 from .base import (
+    AnalyticsData,
+    AuthStatus,
     BasePlatformTool,
+    ContentType,
     PublishContent,
     PublishResult,
-    AnalyticsData,
-    ContentType,
-    AuthStatus
 )
-from ..base_tool import ToolResult, ToolStatus
 
 
 class BilibiliTool(BasePlatformTool):
@@ -50,7 +50,7 @@ class BilibiliTool(BasePlatformTool):
     upload_url = "https://member.bilibili.com/platform/upload/video/frame"
     home_url = "https://www.bilibili.com"
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._auth_status = AuthStatus.NOT_AUTHENTICATED
 
@@ -76,7 +76,7 @@ class BilibiliTool(BasePlatformTool):
             self._auth_status = AuthStatus.ERROR
             return ToolResult(
                 status=ToolStatus.FAILED,
-                error=f"Authentication failed: {str(e)}",
+                error=f"Authentication failed: {e!s}",
                 platform=self.platform
             )
 
@@ -157,7 +157,7 @@ class BilibiliTool(BasePlatformTool):
         except Exception as e:
             return PublishResult(
                 status=ToolStatus.FAILED,
-                error=f"Publishing failed: {str(e)}",
+                error=f"Publishing failed: {e!s}",
                 platform=self.platform
             )
 
@@ -166,8 +166,8 @@ class BilibiliTool(BasePlatformTool):
         title: str,
         video_path: str,
         description: str = "",
-        tags: list[str] = None,
-        cover_image: str = None,
+        tags: list[str] | None = None,
+        cover_image: str | None = None,
         category: str = "knowledge",
         draft: bool = False
     ) -> PublishResult:
