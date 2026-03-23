@@ -111,6 +111,7 @@ ignore = [
     "RUF002", # ambiguous unicode chars in docstrings (Chinese project)
     "RUF003", # ambiguous unicode chars in comments (Chinese project)
     "ARG002", # unused method arguments (common in interface implementations)
+    "ARG003", # unused class method arguments (validators need info param)
 ]
 unfixable = []
 

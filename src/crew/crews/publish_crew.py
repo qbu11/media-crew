@@ -360,9 +360,7 @@ class PublishCrew(BaseCrew):
         """
         super().post_execute(result)
 
-        if result.is_success():
-            # 记录成功的平台
-            if result.data and "publish_records" in result.data:
+        if result.is_success() and result.data and "publish_records" in result.data:
                 successful = [
                     r["platform"]
                     for r in result.data["publish_records"]

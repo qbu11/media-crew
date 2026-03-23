@@ -119,7 +119,7 @@ class RedditSDKTool(BasePlatformTool):
             except ImportError:
                 raise ImportError(
                     f"PRAW 未安装。请运行: {SDK_INFO['reddit'].install_cmd}"
-                )
+                ) from None
         return self._reddit
 
     def authenticate(self) -> PublishResult:
@@ -273,7 +273,7 @@ class TwitterSDKTool(BasePlatformTool):
             except ImportError:
                 raise ImportError(
                     f"Tweepy 未安装。请运行: {SDK_INFO['twitter'].install_cmd}"
-                )
+                ) from None
         return self._client
 
     def authenticate(self) -> PublishResult:
@@ -480,13 +480,13 @@ class InstagramSDKTool(BasePlatformTool):
                 from instagrapi import Client
                 self._cl = Client()
                 # 加载会话
-                import os
-                if os.path.exists(self._session_file):
+                from pathlib import Path
+                if Path(self._session_file).exists():
                     self._cl.load_settings(self._session_file)
             except ImportError:
                 raise ImportError(
                     f"instagrapi 未安装。请运行: {SDK_INFO['instagram'].install_cmd}"
-                )
+                ) from None
         return self._cl
 
     def authenticate(self) -> PublishResult:
@@ -626,7 +626,7 @@ class FacebookSDKTool(BasePlatformTool):
             except ImportError:
                 raise ImportError(
                     f"facebook-sdk 未安装。请运行: {SDK_INFO['facebook'].install_cmd}"
-                )
+                ) from None
         return self._graph
 
     def authenticate(self) -> PublishResult:
@@ -662,7 +662,8 @@ class FacebookSDKTool(BasePlatformTool):
 
             if content.images:
                 # 带图片发布
-                with open(content.images[0], 'rb') as photo:
+                from pathlib import Path
+                with Path(content.images[0]).open('rb') as photo:
                     response = graph.put_photo(
                         image=photo,
                         message=content.body,

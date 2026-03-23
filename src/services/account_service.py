@@ -1,6 +1,7 @@
 """账号管理服务"""
 from datetime import datetime
 import logging
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -44,6 +45,23 @@ class AccountService:
             logger.error(f"创建账号失败: {e}")
             return error(f"创建账号失败: {e}", "ACCOUNT_CREATE_ERROR")
 
+    async def get_account(self, account_id: str) -> Result[Account]:
+        """获取账号"""
+        try:
+            result = await self.session.execute(
+                select(Account).where(Account.id == account_id)
+            )
+            account = result.scalar_one_or_none()
+
+            if not account:
+                return error(f"账号不存在: {account_id}", "ACCOUNT_NOT_FOUND")
+
+            return success(account)
+
+        except Exception as e:
+            logger.error(f"获取账号失败: {e}")
+            return error(f"获取账号失败: {e}", "ACCOUNT_GET_ERROR")
+
     async def list_accounts(
         self,
         client_id: str | None = None,
@@ -69,6 +87,58 @@ class AccountService:
         except Exception as e:
             logger.error(f"列出账号失败: {e}")
             return error(f"列出账号失败: {e}", "ACCOUNT_LIST_ERROR")
+
+    async def update_account(
+        self,
+        account_id: str,
+        **kwargs: Any,
+    ) -> Result[Account]:
+        """更新账号"""
+        try:
+            result = await self.session.execute(
+                select(Account).where(Account.id == account_id)
+            )
+            account = result.scalar_one_or_none()
+
+            if not account:
+                return error(f"账号不存在: {account_id}", "ACCOUNT_NOT_FOUND")
+
+            for key, value in kwargs.items():
+                if hasattr(account, key):
+                    setattr(account, key, value)
+
+            await self.session.commit()
+            await self.session.refresh(account)
+
+            logger.info(f"更新账号成功: {account.id}")
+            return success(account)
+
+        except Exception as e:
+            await self.session.rollback()
+            logger.error(f"更新账号失败: {e}")
+            return error(f"更新账号失败: {e}", "ACCOUNT_UPDATE_ERROR")
+
+    async def delete_account(self, account_id: str) -> Result[None]:
+        """删除账号"""
+        try:
+            result = await self.session.execute(
+                select(Account).where(Account.id == account_id)
+            )
+            account = result.scalar_one_or_none()
+
+            if not account:
+                return error(f"账号不存在: {account_id}", "ACCOUNT_NOT_FOUND")
+
+            await self.session.delete(account)
+            await self.session.commit()
+
+            logger.info(f"删除账号成功: {account_id}")
+            return success(None)
+
+        except Exception as e:
+            await self.session.rollback()
+            logger.error(f"删除账号失败: {e}")
+            return error(f"删除账号失败: {e}", "ACCOUNT_DELETE_ERROR")
 
     async def update_login_status(
         self,

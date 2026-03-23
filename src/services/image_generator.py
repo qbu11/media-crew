@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-import os
+from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -157,7 +157,7 @@ class FontManager:
                 font = ImageFont.truetype(path, size)
                 cls._cache[size] = font
                 return font
-            except:
+            except Exception:
                 continue
 
         return ImageFont.load_default()
@@ -663,7 +663,8 @@ class ImageGenerator:
         output_dir: str
     ) -> list[str]:
         """根据内容自动生成全套图片"""
-        os.makedirs(output_dir, exist_ok=True)
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
         paths = []
 
         # 封面图
@@ -673,7 +674,7 @@ class ImageGenerator:
             tags=content.get("tags"),
             style="gradient"
         )
-        cover_path = os.path.join(output_dir, "1_cover.png")
+        cover_path = str(output_path / "1_cover.png")
         cover.save(cover_path)
         paths.append(cover_path)
 
@@ -686,7 +687,7 @@ class ImageGenerator:
                 rows=comp.get("rows", []),
                 highlight_col=comp.get("highlight_col")
             )
-            table_path = os.path.join(output_dir, "2_comparison.png")
+            table_path = str(output_path / "2_comparison.png")
             table.save(table_path)
             paths.append(table_path)
 
@@ -697,7 +698,7 @@ class ImageGenerator:
                 title=hl.get("title", "核心亮点"),
                 highlights=hl.get("items", [])
             )
-            cards_path = os.path.join(output_dir, "3_highlights.png")
+            cards_path = str(output_path / "3_highlights.png")
             cards.save(cards_path)
             paths.append(cards_path)
 
@@ -709,7 +710,7 @@ class ImageGenerator:
                 recommendations=rec.get("items", []),
                 slogan=rec.get("slogan")
             )
-            summary_path = os.path.join(output_dir, "4_recommendations.png")
+            summary_path = str(output_path / "4_recommendations.png")
             summary.save(summary_path)
             paths.append(summary_path)
 

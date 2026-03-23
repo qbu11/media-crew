@@ -86,9 +86,9 @@ async def search_platform(platform: str, request: SearchRequest) -> dict[str, An
             "searched_at": result.searched_at.isoformat(),
         }
     except ValueError:
-        raise HTTPException(status_code=400, detail=f"Unsupported platform: {platform}")
+        raise HTTPException(status_code=400, detail=f"Unsupported platform: {platform}") from None
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/multi")
@@ -145,7 +145,7 @@ async def get_trending(
             "trending": trending[:limit],
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{platform}/user/{user_id}")
@@ -179,7 +179,7 @@ async def get_user_posts(
             ],
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/competitors")

@@ -99,7 +99,7 @@ async def search_wechat_articles(request: KeywordSearchRequest) -> dict[str, Any
             "searched_at": result.searched_at.isoformat(),
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/wechat/accounts")
@@ -135,7 +135,7 @@ async def search_wechat_accounts(keyword: str) -> dict[str, Any]:
             ],
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/wechat/scrape")
@@ -188,7 +188,7 @@ async def scrape_wechat_account(request: AccountScrapeRequest) -> dict[str, Any]
             "scraped_at": result.scraped_at.isoformat(),
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/wechat/batch")
@@ -232,4 +232,4 @@ async def batch_scrape_accounts(request: BatchScrapeRequest) -> dict[str, Any]:
             },
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

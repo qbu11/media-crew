@@ -78,7 +78,7 @@ async def generate_images(request: ImageGenerateRequest) -> dict[str, Any]:
             },
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"图片生成失败: {e}")
+        raise HTTPException(status_code=500, detail=f"图片生成失败: {e}") from e
 
 
 @router.post("/generate-single")
@@ -134,7 +134,7 @@ async def generate_single_image(request: SingleImageRequest) -> dict[str, Any]:
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"图片生成失败: {e}")
+        raise HTTPException(status_code=500, detail=f"图片生成失败: {e}") from e
 
 
 @router.get("/platforms")

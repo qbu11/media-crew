@@ -10,7 +10,7 @@ Reuses logic from baoyu-post-to-wechat skill.
 """
 
 from datetime import datetime
-import os
+from pathlib import Path
 from typing import Any
 
 from ..base_tool import ToolResult, ToolStatus
@@ -47,11 +47,12 @@ class WechatTool(BasePlatformTool):
     min_interval_seconds = 10.0
 
     # Skill directory for baoyu-post-to-wechat scripts
-    SKILL_DIR = os.path.expanduser("~/.claude/skills/baoyu-post-to-wechat")
+    SKILL_DIR = Path.home() / ".claude" / "skills" / "baoyu-post-to-wechat"
 
     def __init__(self, config: dict[str, Any] | None = None):
         super().__init__(config)
         self._publish_method = self.config.get("publish_method", PublishMethod.API)
+        import os
         self._app_id = self.config.get("app_id") or os.environ.get("WECHAT_APP_ID")
         self._app_secret = self.config.get("app_secret") or os.environ.get("WECHAT_APP_SECRET")
         self._author = self.config.get("default_author", "")
@@ -66,13 +67,13 @@ class WechatTool(BasePlatformTool):
         """Load EXTEND.md configuration (baoyu-skills convention)"""
         config = {}
         extend_paths = [
-            os.path.join(os.getcwd(), ".baoyu-skills", "baoyu-post-to-wechat", "EXTEND.md"),
-            os.path.expanduser("~/.baoyu-skills/baoyu-post-to-wechat/EXTEND.md"),
+            Path.cwd() / ".baoyu-skills" / "baoyu-post-to-wechat" / "EXTEND.md",
+            Path.home() / ".baoyu-skills" / "baoyu-post-to-wechat" / "EXTEND.md",
         ]
 
         for path in extend_paths:
-            if os.path.exists(path):
-                with open(path, encoding="utf-8") as f:
+            if path.exists():
+                with path.open(encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         if ":" in line and not line.startswith("#"):
@@ -110,8 +111,8 @@ class WechatTool(BasePlatformTool):
 
         else:
             # Browser method: check if skill scripts exist
-            script_path = os.path.join(self.SKILL_DIR, "scripts", "wechat-article.ts")
-            if not os.path.exists(script_path):
+            script_path = self.SKILL_DIR / "scripts" / "wechat-article.ts"
+            if not script_path.exists():
                 return ToolResult(
                     status=ToolStatus.FAILED,
                     error=f"Skill script not found: {script_path}",
@@ -199,9 +200,9 @@ class WechatTool(BasePlatformTool):
             else:
                 script = "wechat-article.ts"
 
-            script_path = os.path.join(self.SKILL_DIR, "scripts", script)
+            script_path = self.SKILL_DIR / "scripts" / script
 
-            if not os.path.exists(script_path):
+            if not script_path.exists():
                 return PublishResult(
                     status=ToolStatus.FAILED,
                     error=f"Script not found: {script_path}",

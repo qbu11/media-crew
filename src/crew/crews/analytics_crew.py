@@ -413,9 +413,7 @@ class AnalyticsCrew(BaseCrew):
         """
         super().post_execute(result)
 
-        if result.is_success():
-            # 记录关键发现数量
-            if result.data and "recommendations" in result.data:
+        if result.is_success() and result.data and "recommendations" in result.data:
                 rec_count = len(result.data.get("recommendations", []))
                 logger.info(f"[{self.get_crew_name()}] Generated {rec_count} recommendations")
 

@@ -82,7 +82,7 @@ class ImageSearchTool(BaseTool):
                     "url": f"https://images.unsplash.com/photo-{i + 1}",
                     "thumbnail": f"https://images.unsplash.com/photo-{i + 1}?w=200",
                     "width": 1920,
-                    "height": 1080 if orientation == "landscape" else 1080,
+                    "height": 1080,
                     "source": "unsplash",
                     "attribution": f"Photographer {i + 1}",
                     "license": "free"

@@ -9,7 +9,7 @@ import functools
 import logging
 import random
 import time
-from typing import Any, TypeVar, Union
+from typing import Any, Generic, TypeVar, Union
 
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
@@ -34,7 +34,7 @@ T = TypeVar("T")
 # ============================================================================
 
 
-class Success[T]:
+class Success(Generic[T]):
     """成功结果。"""
 
     def __init__(self, data: T):
@@ -66,7 +66,7 @@ class Error:
         return f"Error(error={self.error!r}, error_code={self.error_code!r})"
 
 
-Result = Union[Success[T], Error]
+Result = Union[Success[T], Error]  # noqa: UP007
 
 
 def success(data: T) -> Success[T]:
@@ -157,7 +157,7 @@ def jitter(min_seconds: float = 0.5, max_seconds: float = 2.0) -> None:
 def safe_execute(
     func: Callable[..., T],
     *args: Any,
-    default: T | None = None,
+    default: T | None = None,  # noqa: ARG001
     log_errors: bool = True,
     **kwargs: Any,
 ) -> Result[T]:
@@ -190,7 +190,7 @@ def safe_execute(
 async def safe_execute_async(
     func: Callable[..., T],
     *args: Any,
-    default: T | None = None,
+    default: T | None = None,  # noqa: ARG001
     log_errors: bool = True,
     **kwargs: Any,
 ) -> Result[T]:

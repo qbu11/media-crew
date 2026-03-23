@@ -193,7 +193,7 @@ class WeiboSearch(BasePlatformSearch):
                     for p in data.get("statuses", [])[:limit]
                 ]
                 return SearchResponse("weibo", keyword, len(posts), posts, datetime.now())
-            except:
+            except Exception:
                 pass
         return SearchResponse("weibo", keyword, 0, [], datetime.now())
 
@@ -209,7 +209,7 @@ class WeiboSearch(BasePlatformSearch):
             try:
                 data = json.loads(result.stdout)
                 return data.get("hot_list", [])[:limit]
-            except:
+            except Exception:
                 pass
         return []
 
@@ -249,7 +249,7 @@ class ZhihuSearch(BasePlatformSearch):
                     for p in data.get("results", [])[:limit]
                 ]
                 return SearchResponse("zhihu", keyword, len(posts), posts, datetime.now())
-            except:
+            except Exception:
                 pass
         return SearchResponse("zhihu", keyword, 0, [], datetime.now())
 
@@ -265,7 +265,7 @@ class ZhihuSearch(BasePlatformSearch):
             try:
                 data = json.loads(result.stdout)
                 return data.get("hot_list", [])[:limit]
-            except:
+            except Exception:
                 pass
         return []
 
@@ -416,7 +416,7 @@ class RedditSearch(BasePlatformSearch):
                     comments=post.num_comments,
                 ))
             return SearchResponse("reddit", keyword, len(posts), posts, datetime.now())
-        except:
+        except Exception:
             return SearchResponse("reddit", keyword, 0, [], datetime.now())
 
     def get_user_posts(self, user_id: str, limit: int = 20) -> SearchResponse:
@@ -441,7 +441,7 @@ class RedditSearch(BasePlatformSearch):
                     "comments": post.num_comments,
                 })
             return posts
-        except:
+        except Exception:
             return []
 
 
@@ -477,7 +477,7 @@ class TwitterSearch(BasePlatformSearch):
                     views=tweet.public_metrics["impression_count"] if tweet.public_metrics else 0,
                 ))
             return SearchResponse("twitter", keyword, len(posts), posts, datetime.now())
-        except:
+        except Exception:
             return SearchResponse("twitter", keyword, 0, [], datetime.now())
 
     def get_user_posts(self, user_id: str, limit: int = 20) -> SearchResponse:
@@ -541,6 +541,6 @@ class CompetitorMonitor:
             try:
                 searcher = get_platform_searcher(platform)
                 results[platform] = searcher.get_user_posts(user_id, limit)
-            except:
+            except Exception:
                 results[platform] = SearchResponse(platform, user_id, 0, [], datetime.now())
         return results

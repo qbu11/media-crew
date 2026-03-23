@@ -61,7 +61,7 @@ class ContentBlock(BaseModel):
 
     @field_validator("content")
     @classmethod
-    def validate_content(cls, v: str, info: Any) -> str:
+    def validate_content(cls, v: str, _info: Any) -> str:
         """Validate content based on block type."""
         if not v.strip():
             raise ValueError("Content cannot be empty")

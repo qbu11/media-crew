@@ -1,0 +1,94 @@
+# ==============================================================================
+# Crew Media Ops — Production Docker Compose
+# ==============================================================================
+
+services:
+  # ---------- PostgreSQL Database ----------
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crew_media
+      POSTGRES_USER: crew
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crew_secret_change_me}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crew -d crew_media"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crew-net
+
+  # ---------- FastAPI Backend ----------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      DEBUG: "false"
+      API_HOST: "0.0.0.0"
+      API_PORT: "8000"
+      DATABASE_URL: "postgresql+asyncpg://crew:${POSTGRES_PASSWORD:-crew_secret_change_me}@db:5432/crew_media"
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      LOG_LEVEL: INFO
+      CORS_ORIGINS: "http://localhost:3000,http://frontend:3000"
+      # LLM keys (inject via .env or Docker secrets)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # Feishu
+      FEISHU_APP_ID: ${FEISHU_APP_ID:-}
+      FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
+      # CrewAI
+      CREW_MAX_ITER: "15"
+      CREW_VERBOSE: "false"
+      CREW_MEMORY_BACKEND: local
+      # Scheduler
+      SCHEDULER_ENABLED: "true"
+      SCHEDULER_TIMEZONE: Asia/Shanghai
+      # Security
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+    volumes:
+      - backend-data:/app/data
+      - backend-logs:/app/logs
+      - generated-images:/app/generated_images
+    networks:
+      - crew-net
+
+  # ---------- Frontend (nginx) ----------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - crew-net
+
+volumes:
+  pgdata:
+    driver: local
+  backend-data:
+    driver: local
+  backend-logs:
+    driver: local
+  generated-images:
+    driver: local
+
+networks:
+  crew-net:
+    driver: bridge

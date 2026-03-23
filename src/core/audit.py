@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import json
 import logging
+from pathlib import Path
 import time
 from typing import Any
 
@@ -125,8 +126,7 @@ class AuditLogger:
 
         if log_to_file:
             # 确保日志目录存在
-            import os
-            os.makedirs(os.path.dirname(log_file), exist_ok=True)
+            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
 
     def log(
         self,
@@ -194,7 +194,7 @@ class AuditLogger:
     def _write_to_file(self, event: AuditEvent) -> None:
         """写入文件。"""
         try:
-            with open(self.log_file, "a", encoding="utf-8") as f:
+            with Path(self.log_file).open("a", encoding="utf-8") as f:
                 f.write(event.to_json() + "\n")
         except Exception as e:
             logger.error(f"Failed to write audit log: {e}")

@@ -1,0 +1,50 @@
+# ==============================================================================
+# Crew Media Ops — Development Docker Compose Override
+# ==============================================================================
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  # ---------- Dev: use SQLite, no PostgreSQL needed ----------
+  db:
+    profiles:
+      - postgres  # Only start if explicitly requested: --profile postgres
+
+  # ---------- Backend: hot reload + local code mount ----------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on: []  # Remove db dependency for SQLite mode
+    environment:
+      APP_ENV: development
+      DEBUG: "true"
+      DATABASE_URL: "sqlite+aiosqlite:///./data/crew.db"
+      LOG_LEVEL: DEBUG
+      CORS_ORIGINS: "*"
+      CREW_VERBOSE: "true"
+    volumes:
+      - ./src:/app/src:cached
+      - ./migrations:/app/migrations:cached
+      - ./alembic.ini:/app/alembic.ini:cached
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./generated_images:/app/generated_images
+    command:
+      [
+        "uvicorn",
+        "src.api.main:app",
+        "--host", "0.0.0.0",
+        "--port", "8000",
+        "--reload",
+        "--reload-dir", "/app/src",
+        "--log-level", "debug",
+      ]
+
+  # ---------- Frontend: serve static with live reload proxy ----------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - ./src/api/static:/usr/share/nginx/html/static:cached
+      - ./src/api/static/index.html:/usr/share/nginx/html/index.html:cached

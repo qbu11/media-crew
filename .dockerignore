@@ -1,0 +1,78 @@
+# ==============================================================================
+# Crew Media Ops — .dockerignore
+# ==============================================================================
+
+# Version control
+.git
+.gitignore
+
+# Python caches
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+*.egg
+dist/
+build/
+
+# Virtual environments
+.venv
+venv
+env
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Testing & Coverage
+htmlcov/
+coverage.xml
+.coverage
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Environment files (secrets)
+.env
+.env.local
+.env.production
+.env.staging
+
+# Node (if dashboard is present)
+node_modules/
+.next/
+out/
+
+# Documentation (not needed in image)
+docs/
+*.md
+!README.md
+LICENSE
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & runtime data (mounted as volumes)
+logs/
+data/
+generated_images/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI
+.github/
+
+# Temporary files
+*.tmp
+*.bak
+*.log

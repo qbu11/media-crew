@@ -6,7 +6,7 @@ Input Validation Module
 
 from enum import Enum
 import re
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -342,8 +342,10 @@ class AnalyticsRequest(BaseModel):
 # Response Models
 # ============================================================================
 
+T = TypeVar("T")
 
-class APIResponse[T](BaseModel):
+
+class APIResponse(BaseModel, Generic[T]):
     """统一 API 响应格式。"""
 
     success: bool
@@ -368,7 +370,7 @@ class APIResponse[T](BaseModel):
         return cls(success=False, error=error, error_code=error_code, meta=meta)
 
 
-class PaginatedResponse[T](BaseModel):
+class PaginatedResponse(BaseModel, Generic[T]):
     """分页响应。"""
 
     items: list[T]

@@ -14,7 +14,7 @@ templates = Jinja2Templates(directory=str(STATIC_DIR))
 
 
 @router.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request) -> str:
+async def dashboard(_request: Request) -> str:
     """Serve the dashboard page."""
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():

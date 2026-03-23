@@ -64,7 +64,7 @@ async def list_tasks() -> dict[str, Any]:
 
 @router.post("/create")
 async def create_task(
-    type: TaskType, title: str, params: dict[str, Any] | None = None
+    type: TaskType, title: str, _params: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     """Create a new task."""
     task_id = f"task-{datetime.now().strftime('%Y%m%d%H%M%S')}"

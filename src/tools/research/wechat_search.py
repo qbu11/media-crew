@@ -150,7 +150,7 @@ class WeChatSearchTool:
         path = Path(file_path)
 
         if file_path.endswith(".json"):
-            with open(path, encoding="utf-8") as f:
+            with path.open(encoding="utf-8") as f:
                 data = json.load(f)
             results = [
                 WeChatSearchResult(
@@ -167,7 +167,7 @@ class WeChatSearchTool:
         elif file_path.endswith(".csv"):
             import csv
             results = []
-            with open(path, encoding="utf-8", newline="") as f:
+            with path.open(encoding="utf-8", newline="") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     results.append(WeChatSearchResult(
