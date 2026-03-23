@@ -39,6 +39,7 @@ dependencies = [
     # Redis for caching (optional but recommended)
     "redis>=5.0.0",
     "alembic>=1.18.4",
+    "aiofiles>=24.1.0",
 ]
 
 [project.optional-dependencies]

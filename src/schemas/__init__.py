@@ -35,6 +35,18 @@ from src.schemas.publish_result import (
     PublishStatus,
     ScheduleType,
 )
+from src.schemas.client import (
+    ClientCreate,
+    ClientResponse,
+    ClientUpdate,
+)
+from src.schemas.account import (
+    AccountCreate,
+    AccountResponse,
+    AccountStatusEnum,
+    AccountUpdate,
+    PlatformType as AccountPlatformType,
+)
 
 __all__ = [
     # Content Brief
@@ -68,4 +80,13 @@ __all__ = [
     "AudienceDemographics",
     "PerformanceInsight",
     "ComparisonAnalytics",
+    # Client & Account
+    "ClientCreate",
+    "ClientUpdate",
+    "ClientResponse",
+    "AccountCreate",
+    "AccountUpdate",
+    "AccountResponse",
+    "AccountStatusEnum",
+    "AccountPlatformType",
 ]
