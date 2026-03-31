@@ -208,6 +208,10 @@ class BasePlatformTool(BaseTool, ABC):
         Returns a (browser, playwright_instance) tuple.
         Caller must call browser.close() and playwright_instance.stop()
         in a finally block.
+
+        Note: If connection fails, playwright_instance is cleaned up
+        before the exception is re-raised. The caller should NOT call
+        _cleanup_browser() when this raises an exception.
         """
         try:
             from playwright.sync_api import sync_playwright
@@ -221,7 +225,10 @@ class BasePlatformTool(BaseTool, ABC):
             browser = pw.chromium.connect_over_cdp(self._get_cdp_endpoint())
             return browser, pw
         except Exception:
-            pw.stop()
+            # Clean up playwright instance on connection failure
+            # Caller should NOT call _cleanup_browser() when we raise
+            with contextlib.suppress(Exception):
+                pw.stop()
             raise
 
     def _find_platform_page(self, browser: Any, url_fragment: str) -> Any:

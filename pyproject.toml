@@ -40,6 +40,9 @@ dependencies = [
     "redis>=5.0.0",
     "alembic>=1.18.4",
     "aiofiles>=24.1.0",
+    "markdown>=3.10.2",
+    "playwright>=1.58.0",
+    "python-socketio[asyncio]>=5.11.0",
 ]
 
 [project.optional-dependencies]
@@ -54,6 +57,7 @@ dev = [
 ]
 browser = [
     "playwright>=1.48.0",
+    "websocket-client>=1.8.0",  # For CDP websocket fallback
 ]
 overseas = [
     # Overseas platform SDKs (recommended for production)

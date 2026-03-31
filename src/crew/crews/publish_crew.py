@@ -2,8 +2,13 @@
 Publish Crew Module
 
 发布线 Crew：平台适配 → 并行发布。
+支持两种模式：
+- agent 模式：通过 CrewAI agent 编排发布（LLM 驱动）
+- direct 模式：直接调用平台工具 publish()（无 LLM 开销）
 """
 
+import time
+from datetime import datetime
 from typing import Any
 
 from crewai import Process, Task
@@ -12,6 +17,8 @@ from loguru import logger
 from src.agents import PlatformAdapter, PlatformPublisher
 from src.agents.platform_adapter import Platform
 from src.agents.platform_publisher import PublishBatch
+from src.tools.platform import get_platform_tool
+from src.tools.platform.base import ContentType, PublishContent
 
 from .base_crew import BaseCrew, CrewInput, CrewResult, CrewStatus
 
@@ -507,3 +514,125 @@ class PublishCrew(BaseCrew):
                 logger.warning(f"Unknown platform: {platform_str}")
 
         return PublishBatch(content_id=content_id, platforms=platform_enums)
+
+    # ── Direct publish (no LLM overhead) ─────────────────────────
+
+    def publish_direct(
+        self,
+        contents: dict[str, dict[str, Any]],
+        content_id: str | None = None,
+    ) -> "PublishCrewResult":
+        """
+        直接调用平台工具发布，不经过 LLM agent。
+
+        比 agent 模式快得多，适合内容已经适配好的场景。
+
+        Args:
+            contents: 按平台分组的内容字典，格式：
+                {
+                    "wechat": {"title": "...", "body": "...", "images": [...], ...},
+                    "xiaohongshu": {"title": "...", "body": "...", "images": [...], ...},
+                }
+            content_id: 内容 ID（可选，自动生成）
+
+        Returns:
+            PublishCrewResult
+        """
+        if not content_id:
+            content_id = f"pub_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+        start = time.time()
+        publish_records: list[dict[str, Any]] = []
+
+        for platform_name, content_data in contents.items():
+            record = self._publish_one(platform_name, content_data, content_id)
+            publish_records.append(record)
+
+        elapsed = time.time() - start
+
+        status = CrewStatus.SUCCESS if any(
+            r["status"] == "published" for r in publish_records
+        ) else CrewStatus.FAILED
+
+        return PublishCrewResult(
+            status=status,
+            adapted_contents=contents,
+            publish_records=publish_records,
+            execution_time=elapsed,
+            metadata={"content_id": content_id, "mode": "direct"},
+        )
+
+    def _publish_one(
+        self,
+        platform_name: str,
+        content_data: dict[str, Any],
+        content_id: str,
+    ) -> dict[str, Any]:
+        """发布到单个平台，返回发布记录字典。"""
+        try:
+            tool = get_platform_tool(platform_name)
+        except ValueError as e:
+            logger.warning("Unsupported platform %s: %s", platform_name, e)
+            return {
+                "content_id": content_id,
+                "platform": platform_name,
+                "status": "failed",
+                "error_message": str(e),
+            }
+
+        # Build PublishContent from dict
+        images = content_data.get("images", [])
+        content_type_str = content_data.get("content_type", "")
+        if content_type_str:
+            try:
+                ct = ContentType(content_type_str)
+            except ValueError:
+                ct = ContentType.IMAGE_TEXT if images else ContentType.ARTICLE
+        else:
+            ct = ContentType.IMAGE_TEXT if images else ContentType.ARTICLE
+
+        publish_content = PublishContent(
+            title=content_data.get("title", ""),
+            body=content_data.get("body", content_data.get("content", "")),
+            content_type=ct,
+            images=images,
+            tags=content_data.get("tags", []),
+            cover_image=content_data.get("cover_image"),
+            custom_fields={
+                k: v for k, v in content_data.items()
+                if k not in ("title", "body", "content", "images", "tags",
+                             "cover_image", "content_type")
+            },
+        )
+
+        logger.info("[Direct] Publishing to %s: %s", platform_name, publish_content.title[:30])
+
+        try:
+            result = tool.publish(publish_content)
+        except Exception as e:
+            logger.exception("Platform %s publish raised", platform_name)
+            return {
+                "content_id": content_id,
+                "platform": platform_name,
+                "status": "failed",
+                "error_message": str(e),
+            }
+
+        if result.is_success():
+            return {
+                "content_id": result.content_id or content_id,
+                "platform": platform_name,
+                "status": "published",
+                "published_url": result.content_url,
+                "published_at": (result.published_at or datetime.now()).isoformat(),
+                "status_detail": result.status_detail,
+                "data": result.data,
+                "error_message": None,
+            }
+        else:
+            return {
+                "content_id": content_id,
+                "platform": platform_name,
+                "status": "failed",
+                "error_message": result.error,
+            }

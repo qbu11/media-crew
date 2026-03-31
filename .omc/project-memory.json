@@ -1,0 +1,591 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774877542855,
+  "projectRoot": "C:\\11Projects\\Crew",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "pyproject.toml"
+        ]
+      },
+      {
+        "name": "C/C++",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "Makefile"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "fastapi",
+        "version": null,
+        "category": "backend"
+      },
+      {
+        "name": "pytest",
+        "version": null,
+        "category": "testing"
+      }
+    ],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "make build",
+    "testCommand": "make test",
+    "lintCommand": "ruff check",
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": "snake_case",
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "src",
+      "tests"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 0,
+      "lastAccessed": 1774877542836,
+      "keyFiles": []
+    },
+    "content": {
+      "path": "content",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1774877542840,
+      "keyFiles": [
+        "wechat_ai_security.md",
+        "xiaohongshu_agent_tools.md",
+        "zhihu_agent_engineering.md"
+      ]
+    },
+    "data": {
+      "path": "data",
+      "purpose": "Data files",
+      "fileCount": 1,
+      "lastAccessed": 1774877542841,
+      "keyFiles": [
+        "crew.db"
+      ]
+    },
+    "database": {
+      "path": "database",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774877542841,
+      "keyFiles": [
+        "schema.sql"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 25,
+      "lastAccessed": 1774877542841,
+      "keyFiles": [
+        "agent-architecture-design.md",
+        "AGENT-TEAMS-PLAN.md",
+        "architecture_improvement_proposal.md",
+        "CEO-REVIEW-IMPLEMENTATION.md",
+        "DATABASE-REWRITE-GUIDE.md"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 11,
+      "lastAccessed": 1774877542841,
+      "keyFiles": [
+        "eslint.config.js",
+        "index.html",
+        "package-lock.json",
+        "package.json",
+        "pnpm-lock.yaml"
+      ]
+    },
+    "generated_images": {
+      "path": "generated_images",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1774877542841,
+      "keyFiles": []
+    },
+    "htmlcov": {
+      "path": "htmlcov",
+      "purpose": null,
+      "fileCount": 121,
+      "lastAccessed": 1774877542844,
+      "keyFiles": [
+        "class_index.html",
+        "coverage_html_cb_188fc9a4.js",
+        "favicon_32_cb_c827f16f.png",
+        "function_index.html",
+        "index.html"
+      ]
+    },
+    "logs": {
+      "path": "logs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774877542844,
+      "keyFiles": [
+        "crew.log"
+      ]
+    },
+    "migrations": {
+      "path": "migrations",
+      "purpose": "Database migrations",
+      "fileCount": 3,
+      "lastAccessed": 1774877542844,
+      "keyFiles": [
+        "env.py",
+        "README",
+        "script.py.mako"
+      ]
+    },
+    "reports": {
+      "path": "reports",
+      "purpose": null,
+      "fileCount": 14,
+      "lastAccessed": 1774877542844,
+      "keyFiles": [
+        "e2e_test_report_20260325.md",
+        "NoAccountCorp_weekly_20260324.md",
+        "NoAccountCorp_weekly_20260325.md",
+        "NoAccountCorp_weekly_20260328.md",
+        "NoAccountCorp_weekly_20260330.md"
+      ]
+    },
+    "screenshots": {
+      "path": "screenshots",
+      "purpose": null,
+      "fileCount": 35,
+      "lastAccessed": 1774877542844,
+      "keyFiles": [
+        "agents.png",
+        "analytics.png",
+        "clients.png",
+        "content.png",
+        "content_create.png"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 22,
+      "lastAccessed": 1774877542844,
+      "keyFiles": [
+        "adapt_xiaohongshu.py",
+        "batch_login.py",
+        "cdp_phase1_test.py",
+        "cdp_visual_test.py",
+        "config_wechat_ip.py"
+      ]
+    },
+    "skills": {
+      "path": "skills",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1774877542845,
+      "keyFiles": []
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 2,
+      "lastAccessed": 1774877542845,
+      "keyFiles": [
+        "main.py",
+        "__init__.py"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 2,
+      "lastAccessed": 1774877542845,
+      "keyFiles": [
+        "conftest.py",
+        "__init__.py"
+      ]
+    },
+    "data\\tests": {
+      "path": "data\\tests",
+      "purpose": "Test files",
+      "fileCount": 3,
+      "lastAccessed": 1774877542845,
+      "keyFiles": [
+        "robustness_20260320_111729.json",
+        "robustness_20260320_115502.json",
+        "robustness_20260320_120630.json"
+      ]
+    },
+    "database\\migrations": {
+      "path": "database\\migrations",
+      "purpose": "Database migrations",
+      "fileCount": 1,
+      "lastAccessed": 1774877542846,
+      "keyFiles": [
+        "add_taste_tables.sql"
+      ]
+    },
+    "frontend\\dist": {
+      "path": "frontend\\dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 3,
+      "lastAccessed": 1774877542846,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg",
+        "index.html"
+      ]
+    },
+    "frontend\\node_modules": {
+      "path": "frontend\\node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 3,
+      "lastAccessed": 1774877542846,
+      "keyFiles": []
+    },
+    "frontend\\public": {
+      "path": "frontend\\public",
+      "purpose": "Public files",
+      "fileCount": 2,
+      "lastAccessed": 1774877542846,
+      "keyFiles": [
+        "favicon.svg",
+        "icons.svg"
+      ]
+    },
+    "src\\api": {
+      "path": "src\\api",
+      "purpose": "API routes",
+      "fileCount": 3,
+      "lastAccessed": 1774877542847,
+      "keyFiles": [
+        "main.py",
+        "ws.py",
+        "__init__.py"
+      ]
+    },
+    "src\\models": {
+      "path": "src\\models",
+      "purpose": "Data models",
+      "fileCount": 12,
+      "lastAccessed": 1774877542847,
+      "keyFiles": [
+        "account.py",
+        "agent.py",
+        "analytics.py"
+      ]
+    },
+    "src\\schemas": {
+      "path": "src\\schemas",
+      "purpose": "Schema definitions",
+      "fileCount": 9,
+      "lastAccessed": 1774877542848,
+      "keyFiles": [
+        "account.py",
+        "analytics_report.py",
+        "client.py"
+      ]
+    },
+    "src\\services": {
+      "path": "src\\services",
+      "purpose": "Business logic services",
+      "fileCount": 13,
+      "lastAccessed": 1774877542848,
+      "keyFiles": [
+        "account_service.py",
+        "client_service.py",
+        "content_service.py"
+      ]
+    },
+    "src\\utils": {
+      "path": "src\\utils",
+      "purpose": "Utility functions",
+      "fileCount": 2,
+      "lastAccessed": 1774877542848,
+      "keyFiles": [
+        "retry.py",
+        "__init__.py"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "frontend\\src\\stores\\app.ts",
+      "accessCount": 14,
+      "lastAccessed": 1774919192271,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\routes\\crew_execution.py",
+      "accessCount": 14,
+      "lastAccessed": 1774920670405,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\routes\\review.py",
+      "accessCount": 9,
+      "lastAccessed": 1774920575847,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\services\\api.ts",
+      "accessCount": 8,
+      "lastAccessed": 1774921137524,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\types\\index.ts",
+      "accessCount": 6,
+      "lastAccessed": 1774917756572,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\main.py",
+      "accessCount": 6,
+      "lastAccessed": 1774920900572,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src",
+      "accessCount": 5,
+      "lastAccessed": 1774916766009,
+      "type": "directory"
+    },
+    {
+      "path": "src\\agents\\researcher.py",
+      "accessCount": 5,
+      "lastAccessed": 1774917390741,
+      "type": "file"
+    },
+    {
+      "path": "src\\agents\\content_orchestrator.py",
+      "accessCount": 5,
+      "lastAccessed": 1774917564163,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\pages\\ContentCreatePage.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1774917880471,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\components\\crew\\SubagentWorkflow.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1774919098144,
+      "type": "file"
+    },
+    {
+      "path": "src\\agents\\marketer.py",
+      "accessCount": 4,
+      "lastAccessed": 1774917498812,
+      "type": "file"
+    },
+    {
+      "path": "src\\agents\\copywriter.py",
+      "accessCount": 4,
+      "lastAccessed": 1774917499144,
+      "type": "file"
+    },
+    {
+      "path": "frontend",
+      "accessCount": 4,
+      "lastAccessed": 1774919067931,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src\\components\\crew\\CrewProgressTracker.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1774916777324,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\hooks\\useWebSocket.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774916777382,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\services\\websocket.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774916777410,
+      "type": "file"
+    },
+    {
+      "path": "src\\agents\\designer.py",
+      "accessCount": 3,
+      "lastAccessed": 1774917515676,
+      "type": "file"
+    },
+    {
+      "path": "src\\services\\taste_engine.py",
+      "accessCount": 3,
+      "lastAccessed": 1774920508493,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\routes\\__init__.py",
+      "accessCount": 3,
+      "lastAccessed": 1774920828502,
+      "type": "file"
+    },
+    {
+      "path": "src\\crew\\crews\\content_crew.py",
+      "accessCount": 2,
+      "lastAccessed": 1774916742567,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\ws.py",
+      "accessCount": 2,
+      "lastAccessed": 1774916742622,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\pages\\CrewsPage.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774916777349,
+      "type": "file"
+    },
+    {
+      "path": "src\\agents\\base_agent.py",
+      "accessCount": 2,
+      "lastAccessed": 1774917352815,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\tsconfig.app.json",
+      "accessCount": 2,
+      "lastAccessed": 1774919089234,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\types",
+      "accessCount": 1,
+      "lastAccessed": 1774916585122,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src\\components",
+      "accessCount": 1,
+      "lastAccessed": 1774916585143,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src\\types\\review.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774916601612,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\pages\\AgentsPage.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774916601673,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\services\\mockData.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774916786182,
+      "type": "file"
+    },
+    {
+      "path": "src\\crew\\crews\\base_crew.py",
+      "accessCount": 1,
+      "lastAccessed": 1774916786193,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 1,
+      "lastAccessed": 1774916797308,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src\\App.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774916797365,
+      "type": "file"
+    },
+    {
+      "path": "src\\crew\\callbacks.py",
+      "accessCount": 1,
+      "lastAccessed": 1774917322033,
+      "type": "file"
+    },
+    {
+      "path": "src\\tools\\__init__.py",
+      "accessCount": 1,
+      "lastAccessed": 1774917331233,
+      "type": "file"
+    },
+    {
+      "path": "src\\tools\\search_tools.py",
+      "accessCount": 1,
+      "lastAccessed": 1774917340757,
+      "type": "file"
+    },
+    {
+      "path": "src\\tools\\viral_reference.py",
+      "accessCount": 1,
+      "lastAccessed": 1774917340947,
+      "type": "file"
+    },
+    {
+      "path": "src\\tools\\content_tools.py",
+      "accessCount": 1,
+      "lastAccessed": 1774917352838,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\vite.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774919074621,
+      "type": "file"
+    },
+    {
+      "path": "src\\schemas\\taste_profile.py",
+      "accessCount": 1,
+      "lastAccessed": 1774920417765,
+      "type": "file"
+    },
+    {
+      "path": "src\\agents\\onboarding.py",
+      "accessCount": 1,
+      "lastAccessed": 1774920788388,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\routes\\onboarding.py",
+      "accessCount": 1,
+      "lastAccessed": 1774920810028,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

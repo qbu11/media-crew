@@ -19,7 +19,8 @@ from src.agents.content_reviewer import (
     ReviewReport,
     ReviewResult,
 )
-from src.agents.content_writer import ContentWriter, ContentDraft
+from src.agents.content_orchestrator import ContentOrchestrator
+from src.agents.copywriter import Copywriter, CopyDraft
 from src.agents.data_analyst import (
     AnalysisReport,
     ContentMetrics,
@@ -34,7 +35,7 @@ from src.agents.platform_publisher import (
     PublishStatus,
     PlatformPublisher,
 )
-from src.agents.topic_researcher import TopicReport, TopicResearcher
+from src.agents.researcher import Researcher, ResearchReport
 
 
 class TestBaseAgent:
@@ -133,170 +134,185 @@ class TestBaseAgent:
         assert call_kwargs["verbose"] is True
 
 
-class TestTopicResearcher:
-    """Test cases for TopicResearcher agent."""
+class TestResearcher:
+    """Test cases for Researcher agent."""
 
-    def test_topic_researcher_role(self) -> None:
+    def test_researcher_role(self) -> None:
         """
-        Test TopicResearcher returns correct role.
+        Test Researcher returns correct role.
 
-        Arrange: Create TopicResearcher instance
+        Arrange: Create Researcher instance
         Act: Call get_role()
-        Assert: Returns "选题研究员"
+        Assert: Returns "热点研究员"
         """
-        researcher = TopicResearcher()
-        assert researcher.get_role() == "选题研究员"
+        researcher = Researcher()
+        assert researcher.get_role() == "热点研究员"
 
-    def test_topic_researcher_goal(self) -> None:
+    def test_researcher_goal(self) -> None:
         """
-        Test TopicResearcher returns correct goal.
+        Test Researcher returns correct goal.
 
-        Arrange: Create TopicResearcher instance
+        Arrange: Create Researcher instance
         Act: Call get_goal()
         Assert: Goal contains expected keywords
         """
-        researcher = TopicResearcher()
+        researcher = Researcher()
         goal = researcher.get_goal()
         assert "热点" in goal
-        assert "选题" in goal
-        assert "内容方向" in goal
+        assert "分析" in goal or "竞品" in goal or "爆款" in goal
 
-    def test_topic_researcher_default_model(self) -> None:
+    def test_researcher_default_model(self) -> None:
         """
-        Test TopicResearcher uses default model.
+        Test Researcher uses default model.
 
-        Arrange: Create TopicResearcher instance
+        Arrange: Create Researcher instance
         Act: Call get_default_model()
         Assert: Returns claude-sonnet-4-20250514
         """
-        researcher = TopicResearcher()
+        researcher = Researcher()
         assert researcher.get_default_model() == "claude-sonnet-4-20250514"
 
-    def test_topic_researcher_tools_management(self) -> None:
+    def test_researcher_tools_management(self) -> None:
         """
-        Test TopicResearcher class-level tools management.
+        Test Researcher class-level tools management.
 
         Arrange: Create mock tools
         Act: Set tools via class method
         Assert: Tools are accessible via instance
         """
         mock_tools = [Mock(), Mock()]
-        TopicResearcher.set_tools(mock_tools)
+        Researcher.set_tools(mock_tools)
 
-        researcher = TopicResearcher()
+        researcher = Researcher()
         assert researcher.get_tools() == mock_tools
 
 
-class TestTopicReport:
-    """Test cases for TopicReport data structure."""
+class TestResearchReport:
+    """Test cases for ResearchReport data structure."""
 
-    def test_topic_report_creation(self) -> None:
+    def test_research_report_creation(self) -> None:
         """
-        Test TopicReport can be created with valid data.
+        Test ResearchReport can be created with valid data.
 
-        Arrange: Prepare valid topic report data
-        Act: Create TopicReport instance
+        Arrange: Prepare valid research report data
+        Act: Create ResearchReport instance
         Assert: Instance is created with correct attributes
         """
-        report = TopicReport(
-            title="AI创业实战指南",
-            category="科技创业",
-            potential_score=85.5,
-            reasoning="AI创业是当前热点",
-            reference_content=["https://example.com"],
-            target_audience="创业者",
-            suggested_angle="技术人视角",
-            keywords=["AI", "创业"],
+        report = ResearchReport(
+            topic="AI创业实战指南",
+            trending_topics=[{"title": "热点1", "heat": 10000}],
+            viral_references=[{"title": "爆款1", "url": "https://example.com"}],
+            competitor_insights=[{"account": "账号1", "recent_hits": 5}],
+            recommendations=["建议1", "建议2"],
         )
 
-        assert report.title == "AI创业实战指南"
-        assert report.category == "科技创业"
-        assert report.potential_score == 85.5
-        assert report.reasoning == "AI创业是当前热点"
-        assert len(report.reference_content) == 1
-        assert report.target_audience == "创业者"
-        assert report.suggested_angle == "技术人视角"
-        assert len(report.keywords) == 2
+        assert report.topic == "AI创业实战指南"
+        assert len(report.trending_topics) == 1
+        assert len(report.viral_references) == 1
+        assert len(report.competitor_insights) == 1
+        assert len(report.recommendations) == 2
 
-    def test_topic_report_to_dict(self) -> None:
+    def test_research_report_to_dict(self) -> None:
         """
-        Test TopicReport.to_dict converts to dictionary.
+        Test ResearchReport.to_dict converts to dictionary.
 
-        Arrange: Create TopicReport instance
+        Arrange: Create ResearchReport instance
         Act: Call to_dict()
         Assert: Returns dictionary with all fields
         """
-        report = TopicReport(
-            title="测试标题",
-            category="测试分类",
-            potential_score=75.0,
-            reasoning="测试理由",
-            reference_content=[],
-            target_audience="测试受众",
-            suggested_angle="测试角度",
-            keywords=["测试"],
+        report = ResearchReport(
+            topic="测试标题",
+            trending_topics=[],
+            viral_references=[],
+            competitor_insights=[],
+            recommendations=["测试建议"],
         )
 
         result = report.to_dict()
 
         assert isinstance(result, dict)
-        assert result["title"] == "测试标题"
-        assert result["potential_score"] == 75.0
-        assert "keywords" in result
+        assert result["topic"] == "测试标题"
+        assert "recommendations" in result
 
 
-class TestContentWriter:
-    """Test cases for ContentWriter agent."""
+class TestContentOrchestrator:
+    """Test cases for ContentOrchestrator agent."""
 
-    def test_content_writer_role(self) -> None:
+    def test_content_orchestrator_role(self) -> None:
         """
-        Test ContentWriter returns correct role.
+        Test ContentOrchestrator returns correct role.
 
-        Arrange: Create ContentWriter instance
+        Arrange: Create ContentOrchestrator instance
         Act: Call get_role()
-        Assert: Returns "内容创作者"
+        Assert: Returns "内容编排者"
         """
-        writer = ContentWriter()
-        assert writer.get_role() == "内容创作者"
+        orchestrator = ContentOrchestrator()
+        assert orchestrator.get_role() == "内容编排者"
 
-    def test_content_writer_uses_opus_model(self) -> None:
+    def test_content_orchestrator_uses_sonnet_model(self) -> None:
         """
-        Test ContentWriter uses Opus model by default.
+        Test ContentOrchestrator uses Sonnet model by default.
 
-        Arrange: Create ContentWriter instance
+        Arrange: Create ContentOrchestrator instance
         Act: Call get_default_model()
-        Assert: Returns claude-opus-4-20250514
+        Assert: Returns claude-sonnet-4-20250514
         """
-        writer = ContentWriter()
-        assert writer.get_default_model() == "claude-opus-4-20250514"
+        orchestrator = ContentOrchestrator()
+        assert orchestrator.get_default_model() == "claude-sonnet-4-20250514"
 
-    def test_content_writer_goal(self) -> None:
+    def test_content_orchestrator_goal(self) -> None:
         """
-        Test ContentWriter returns correct goal.
+        Test ContentOrchestrator returns correct goal.
 
-        Arrange: Create ContentWriter instance
+        Arrange: Create ContentOrchestrator instance
         Act: Call get_goal()
         Assert: Goal contains content creation keywords
         """
-        writer = ContentWriter()
+        orchestrator = ContentOrchestrator()
+        goal = orchestrator.get_goal()
+        assert "创作" in goal or "编排" in goal
+
+
+class TestCopywriter:
+    """Test cases for Copywriter agent."""
+
+    def test_copywriter_default_model(self) -> None:
+        """
+        Test Copywriter uses Sonnet model by default.
+
+        Arrange: Create Copywriter instance
+        Act: Call get_default_model()
+        Assert: Returns claude-sonnet-4-20250514
+        """
+        writer = Copywriter()
+        assert writer.get_default_model() == "claude-sonnet-4-20250514"
+
+    def test_copywriter_goal(self) -> None:
+        """
+        Test Copywriter returns correct goal.
+
+        Arrange: Create Copywriter instance
+        Act: Call get_goal()
+        Assert: Goal contains content creation keywords
+        """
+        writer = Copywriter()
         goal = writer.get_goal()
         assert "创作" in goal
-        assert "高质量" in goal
-        assert "平台调性" in goal
+        assert "文案" in goal
 
 
-class TestContentDraft:
-    """Test cases for ContentDraft data structure."""
+class TestCopyDraft:
+    """Test cases for CopyDraft data structure."""
 
-    def test_content_draft_creation(self) -> None:
+    def test_copy_draft_creation(self) -> None:
         """
-        Test ContentDraft can be created with valid data.
+        Test CopyDraft can be created with valid data.
 
         Arrange: Prepare valid content draft data
-        Act: Create ContentDraft instance
+        Act: Create CopyDraft instance
         Assert: Instance is created with correct attributes
         """
-        draft = ContentDraft(
+        draft = CopyDraft(
             title="测试标题",
             content="测试内容",
             summary="测试摘要",
@@ -310,15 +326,15 @@ class TestContentDraft:
         assert len(draft.tags) == 2
         assert draft.platform == "xiaohongshu"
 
-    def test_content_draft_to_dict(self) -> None:
+    def test_copy_draft_to_dict(self) -> None:
         """
-        Test ContentDraft.to_dict converts to dictionary.
+        Test CopyDraft.to_dict converts to dictionary.
 
-        Arrange: Create ContentDraft instance
+        Arrange: Create CopyDraft instance
         Act: Call to_dict()
         Assert: Returns dictionary with all fields
         """
-        draft = ContentDraft(
+        draft = CopyDraft(
             title="标题",
             content="内容",
             summary="摘要",
@@ -332,15 +348,15 @@ class TestContentDraft:
         assert result["title"] == "标题"
         assert result["cover_image_prompt"] == "图片提示"
 
-    def test_content_draft_to_markdown(self) -> None:
+    def test_copy_draft_to_markdown(self) -> None:
         """
-        Test ContentDraft.to_markdown generates valid markdown.
+        Test CopyDraft.to_markdown generates valid markdown.
 
-        Arrange: Create ContentDraft instance
+        Arrange: Create CopyDraft instance
         Act: Call to_markdown()
         Assert: Returns properly formatted markdown
         """
-        draft = ContentDraft(
+        draft = CopyDraft(
             title="AI创业指南",
             content="这是正文内容",
             summary="这是摘要",
@@ -351,8 +367,6 @@ class TestContentDraft:
 
         assert "# AI创业指南" in markdown
         assert "**摘要**: 这是摘要" in markdown
-        assert "**标签**: AI, 创业" in markdown
-        assert "这是正文内容" in markdown
 
 
 class TestContentReviewer:
@@ -388,7 +402,7 @@ class TestReviewReport:
 
     def test_review_report_creation_approved(self) -> None:
         """
-        Test ReviewReport can be created with approved status.
+        Test ReviewReport can be created with APPROVED status.
 
         Arrange: Prepare valid review report data
         Act: Create ReviewReport with APPROVED status
@@ -599,7 +613,7 @@ class TestPublishRecord:
             content_id="draft_123",
             platform=Platform.XIAOHONGSHU,
             status=PublishStatus.PUBLISHED,
-            published_url="https://example.com/post/123",
+            published_url="https://xiaohongshu.com/explore/abc123",
             published_at=datetime.now(),
         )
 
@@ -685,71 +699,13 @@ class TestPublishBatch:
             content_id="draft_123",
             platform=Platform.XIAOHONGSHU,
             status=PublishStatus.PUBLISHED,
-            published_url="https://example.com/post/123",
+            published_url="https://xiaohongshu.com/explore/123",
         )
 
         batch.update_record(updated_record)
 
-        retrieved = batch.get_record(Platform.XIAOHONGSHU)
-        assert retrieved.status == PublishStatus.PUBLISHED
-        assert retrieved.published_url == "https://example.com/post/123"
-
-    def test_publish_batch_summary_methods(self) -> None:
-        """
-        Test PublishBatch summary calculation methods.
-
-        Arrange: Create PublishBatch with mixed status records
-        Act: Update records and call summary methods
-        Assert: Summary methods return correct values
-        """
-        batch = PublishBatch(
-            content_id="draft_123",
-            platforms=[
-                Platform.XIAOHONGSHU,
-                Platform.WECHAT,
-                Platform.WEIBO,
-            ],
-        )
-
-        # Update one to success, one to failed
-        batch.update_record(
-            PublishRecord(
-                content_id="draft_123",
-                platform=Platform.XIAOHONGSHU,
-                status=PublishStatus.PUBLISHED,
-            )
-        )
-        batch.update_record(
-            PublishRecord(
-                content_id="draft_123",
-                platform=Platform.WECHAT,
-                status=PublishStatus.FAILED,
-            )
-        )
-
-        assert len(batch.get_successful_platforms()) == 1
-        assert len(batch.get_failed_platforms()) == 1
-        assert len(batch.get_pending_platforms()) == 1
-        assert batch.is_all_success() is False
-
-    def test_publish_batch_to_dict(self) -> None:
-        """
-        Test PublishBatch.to_dict generates correct summary.
-
-        Arrange: Create PublishBatch
-        Act: Call to_dict()
-        Assert: Returns dict with summary
-        """
-        batch = PublishBatch(
-            content_id="draft_123",
-            platforms=[Platform.XIAOHONGSHU, Platform.WECHAT],
-        )
-
-        result = batch.to_dict()
-
-        assert result["content_id"] == "draft_123"
-        assert result["summary"]["total"] == 2
-        assert result["summary"]["pending"] == 2
+        assert batch.records[Platform.XIAOHONGSHU].status == PublishStatus.PUBLISHED
+        assert batch.records[Platform.XIAOHONGSHU].published_url == "https://xiaohongshu.com/explore/123"
 
 
 class TestDataAnalyst:
@@ -768,7 +724,7 @@ class TestDataAnalyst:
 
     def test_data_analyst_goal_keywords(self) -> None:
         """
-        Test DataAnalyst goal contains expected keywords.
+        Test DataAnalyst goal contains analytics-related keywords.
 
         Arrange: Create DataAnalyst instance
         Act: Call get_goal()

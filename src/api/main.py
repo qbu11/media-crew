@@ -21,6 +21,7 @@ from src.api.routes import (
     dashboard,
     health,
     images,
+    onboarding,
     research,
     review,
     schedule,
@@ -89,6 +90,7 @@ app.include_router(accounts.router, prefix="/api/v1")
 app.include_router(images.router, prefix="/api/v1")
 app.include_router(crew_execution.router, prefix="/api/v1")
 app.include_router(review.router, prefix="/api/v1")
+app.include_router(onboarding.router, prefix="/api/v1")
 app.include_router(schedule.router, prefix="/api")
 
 # Mount static files

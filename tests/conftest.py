@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from src.agents.base_agent import BaseAgent
 from src.agents.content_reviewer import ContentReviewer, ReviewResult, ReviewReport
-from src.agents.content_writer import ContentWriter, ContentDraft
+from src.agents.content_creator import ContentCreator, ContentDraft
 from src.agents.data_analyst import DataAnalyst, AnalysisReport, ContentMetrics, TrendAnalysis
 from src.agents.platform_adapter import Platform, PlatformAdapter
 from src.agents.platform_publisher import (
@@ -29,7 +29,6 @@ from src.agents.platform_publisher import (
     PublishRecord,
     PublishStatus,
 )
-from src.agents.topic_researcher import TopicResearcher, TopicReport
 from src.crew.crews.base_crew import BaseCrew, CrewInput, CrewResult, CrewStatus
 from src.models.base import Base
 from src.models.analytics import Analytics, MetricSnapshot
@@ -452,25 +451,21 @@ def mock_analytics_response() -> Dict[str, Any]:
 
 
 @pytest.fixture(scope="function")
-def sample_topic_report() -> TopicReport:
+def sample_topic_report() -> ContentDraft:
     """
     Provide a sample topic report.
 
     Returns:
-        TopicReport: Sample topic report instance
+        ContentDraft: Sample content draft instance (replaces TopicReport)
     """
-    return TopicReport(
+    return ContentDraft(
         title="AI创业实战指南",
-        category="科技创业",
-        potential_score=85.5,
-        reasoning="AI创业是当前热点，搜索量增长150%",
-        reference_content=[
-            "https://example.com/article1",
-            "https://example.com/article2",
-        ],
-        target_audience="创业者、技术人、产品经理",
-        suggested_angle="从技术人角度分享踩坑经验",
-        keywords=["AI创业", "人工智能", "创业指南", "技术转型"],
+        content="# 坑1：技术选型\n\n详细内容...",
+        summary="AI创业是当前热点，搜索量增长150%",
+        tags=["AI创业", "人工智能", "创业指南", "技术转型"],
+        style_notes="从技术人角度分享踩坑经验",
+        platform="xiaohongshu",
+        metadata={"category": "科技创业"},
     )
 
 

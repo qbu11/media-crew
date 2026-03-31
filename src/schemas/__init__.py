@@ -31,6 +31,14 @@ from src.schemas.content_draft import (
     QualityScore,
     ReviewFeedback,
 )
+from src.schemas.taste_profile import (
+    AnalyticsInsights,
+    CompetitorBenchmark,
+    ExplicitPreferences,
+    TasteProfile,
+    TasteSignal,
+    TasteVector,
+)
 from src.schemas.publish_result import (
     PlatformPostInfo,
     PublishError,
@@ -80,4 +88,11 @@ __all__ = [
     "TimePeriod",
     "TrendDirection",
     "TrendingTopic",
+    # Taste Profile
+    "AnalyticsInsights",
+    "CompetitorBenchmark",
+    "ExplicitPreferences",
+    "TasteProfile",
+    "TasteSignal",
+    "TasteVector",
 ]

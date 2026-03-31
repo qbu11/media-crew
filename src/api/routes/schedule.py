@@ -1,6 +1,7 @@
 """Schedule routes — manage scheduled publishing tasks."""
 
 from datetime import datetime
+import logging
 from typing import Any
 import uuid
 
@@ -9,7 +10,11 @@ from apscheduler.triggers.date import DateTrigger
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
+from src.tools.platform import PLATFORM_REGISTRY
+from src.tools.platform.base import PublishContent
+
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
+logger = logging.getLogger(__name__)
 
 
 # ── Models ────────────────────────────────────────────────────────
@@ -97,12 +102,57 @@ async def create_schedule(
     # Generate job ID
     job_id = f"schedule-{req.platform}-{uuid.uuid4().hex[:8]}"
 
-    # Create a no-op function for the scheduled job
-    # In production, this would call the publish engine
+    # Create the publish task function with closure over content and platform
     async def _publish_task() -> None:
-        """Execute the scheduled publish."""
-        # This is a placeholder - actual implementation would use publish_engine
-        pass
+        """
+        Execute the scheduled publish.
+
+        This function is called by the scheduler when the trigger fires.
+        It uses the platform tool to publish the content.
+        """
+        logger.info("Executing scheduled publish for platform=%s", req.platform)
+
+        if req.platform not in PLATFORM_REGISTRY:
+            logger.error("Platform %s not found in registry", req.platform)
+            return
+
+        tool_class = PLATFORM_REGISTRY[req.platform]
+        tool = tool_class()
+
+        try:
+            # Build PublishContent from the request content dict
+            publish_content = PublishContent(
+                title=req.content.get("title", ""),
+                body=req.content.get("body", ""),
+                images=req.content.get("images", []),
+                tags=req.content.get("tags", []),
+                cover_image=req.content.get("cover_image"),
+                video=req.content.get("video"),  # Note: field name is 'video', not 'video_path'
+                content_type=req.content.get("content_type", "post"),
+            )
+
+            # Publish using the platform tool
+            result = tool.publish(publish_content)
+
+            if result.success:
+                logger.info(
+                    "Scheduled publish succeeded: platform=%s, url=%s",
+                    req.platform,
+                    result.data.get("url") if result.data else None,
+                )
+            else:
+                logger.error(
+                    "Scheduled publish failed: platform=%s, error=%s",
+                    req.platform,
+                    result.error,
+                )
+
+        except Exception as e:
+            logger.exception(
+                "Scheduled publish error: platform=%s, error=%s",
+                req.platform,
+                e,
+            )
 
     # Add job to scheduler
     scheduler.add_custom_job(

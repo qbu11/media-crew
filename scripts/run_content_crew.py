@@ -155,6 +155,10 @@ def run(
         "--depth", "-d",
         help="Research depth: basic, standard, deep"
     )] = "standard",
+    viral_category: Annotated[str, typer.Option(
+        "--viral-category", "-vc",
+        help="Viral content category (美妆/职场/穿搭/情感/干货/科技教程等)"
+    )] = None,
     output: Annotated[Path | None, typer.Option(
         "--output", "-o",
         help="Output file path for results (JSON)"
@@ -238,12 +242,12 @@ def run(
 
     # Create crew input
     crew_input = ContentCrewInput(
-        industry=topic,  # Use topic as industry context
-        keywords=keywords,
+        topic=topic,
         target_platform=platform_list[0],  # Primary platform
         content_type=content_type,
         research_depth=research_depth,
         enable_human_review=enable_human_review,
+        viral_category=viral_category,
     )
 
     # Run the crew with progress indication

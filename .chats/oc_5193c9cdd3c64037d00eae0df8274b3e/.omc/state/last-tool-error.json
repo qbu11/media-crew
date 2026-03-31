@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /c/11Projects/Crew && git add -A && git commit -m \\\"feat: complete taste onboarding flow with agent, API, and frontend workflow\\n\\n- Created OnboardingAgent for conversational taste pre...",
+  "error": "Exit code 128\nerror: short read while indexing nul\nerror: nul: failed to insert into database\nerror: unable to index file 'nul'\nfatal: adding files failed\n\nerror: short read while indexing nul\nerror: nul: failed to insert into database\nerror: unable to index file 'nul'\nfatal: adding files failed",
+  "timestamp": "2026-03-31T02:19:38.331Z",
+  "retry_count": 1
+}

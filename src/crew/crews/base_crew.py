@@ -272,8 +272,8 @@ class BaseCrew(ABC):
             # 构建 Crew
             crew = self.build_crew(inputs)
 
-            # 执行
-            outputs = crew.kickoff(**inputs.inputs)
+            # 执行 — CrewAI 1.6.1 接受 inputs=dict
+            outputs = crew.kickoff(inputs=inputs.inputs)
 
             # 计算执行时间
             execution_time = time.time() - start_time

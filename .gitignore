@@ -129,3 +129,4 @@ temp/
 # Local development overrides
 .local/
 .localrc
+.gstack/

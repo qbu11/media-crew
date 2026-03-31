@@ -14,6 +14,7 @@ from src.models.content import Content, ContentBrief, ContentDraft, ContentType,
 from src.models.hot_topic import HotTopic
 from src.models.metrics import Metrics
 from src.models.publish_log import PlatformPost, PublishLog, PublishStatus, ScheduleType
+from src.models.taste import TasteFeedbackLog, TasteProfileDB
 from src.models.task import Task, TaskStatus
 
 __all__ = [
@@ -44,6 +45,9 @@ __all__ = [
     # Task Queue
     "Task",
     "TaskStatus",
+    # Taste Profile
+    "TasteFeedbackLog",
+    "TasteProfileDB",
     "TimePeriod",
     "TimestampMixin",
     "TrendDirection",
