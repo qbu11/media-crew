@@ -16,13 +16,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv for fast dependency resolution
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy only dependency files first (cache-friendly)
-COPY pyproject.toml uv.lock ./
+# Copy dependency files + README (hatchling requires it)
+COPY pyproject.toml uv.lock README.md ./
 
 # Install production dependencies into a virtual env
 RUN uv venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    uv pip install --no-cache -e ".[browser]"
+    uv pip install --no-cache ".[browser]"
 
 # --------------- Stage 2: Production runtime ---------------
 FROM python:3.12-slim AS runtime
