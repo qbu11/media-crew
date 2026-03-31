@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd /c/11Projects/Crew && git add -A && git commit -m \\\"feat: complete taste onboarding flow with agent, API, and frontend workflow\\n\\n- Created OnboardingAgent for conversational taste pre...",
-  "error": "Exit code 128\nerror: short read while indexing nul\nerror: nul: failed to insert into database\nerror: unable to index file 'nul'\nfatal: adding files failed\n\nerror: short read while indexing nul\nerror: nul: failed to insert into database\nerror: unable to index file 'nul'\nfatal: adding files failed",
-  "timestamp": "2026-03-31T02:19:38.331Z",
+  "tool_input_preview": "{\"command\":\"cd /c/11Projects/Crew && ls -la *.md *.csv *.txt 2>/dev/null\",\"description\":\"List root-level document files\"}",
+  "error": "Exit code 2\n-rw-r--r-- 1 puzzl 197609 12994 Mar 20 11:12 CLAUDE.md\n-rw-r--r-- 1 puzzl 197609  7562 Mar 22 09:08 DELIVERY-CHECKLIST.md\n-rw-r--r-- 1 puzzl 197609 10649 Mar 22 09:10 EXECUTIVE-SUMMARY.md\n-rw-r--r-- 1 puzzl 197609  9990 Mar 24 02:49 keyword_search_20260324_024927.csv\n-rw-r--r-- 1 puzzl 197609 13990 Mar 24 02:51 keyword_search_20260324_025154.csv\n-rw-r--r-- 1 puzzl 197609 13978 Mar 24 02:57 keyword_search_20260324_025751.csv\n-rw-r--r-- 1 puzzl 197609  9845 Mar 22 09:09 PROJECT-DASHBOA...",
+  "timestamp": "2026-03-31T02:38:05.288Z",
   "retry_count": 1
 }

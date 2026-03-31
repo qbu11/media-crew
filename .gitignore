@@ -130,3 +130,8 @@ temp/
 .local/
 .localrc
 .gstack/
+
+# Temporary artifacts (screenshots, generated images, etc.)
+screenshots/
+generated_images/
+reports/

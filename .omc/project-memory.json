@@ -335,15 +335,15 @@
   },
   "hotPaths": [
     {
-      "path": "frontend\\src\\stores\\app.ts",
-      "accessCount": 14,
-      "lastAccessed": 1774919192271,
+      "path": "src\\api\\routes\\crew_execution.py",
+      "accessCount": 15,
+      "lastAccessed": 1774924445378,
       "type": "file"
     },
     {
-      "path": "src\\api\\routes\\crew_execution.py",
+      "path": "frontend\\src\\stores\\app.ts",
       "accessCount": 14,
-      "lastAccessed": 1774920670405,
+      "lastAccessed": 1774919192271,
       "type": "file"
     },
     {
@@ -359,16 +359,16 @@
       "type": "file"
     },
     {
+      "path": "src\\api\\main.py",
+      "accessCount": 7,
+      "lastAccessed": 1774924291798,
+      "type": "directory"
+    },
+    {
       "path": "frontend\\src\\types\\index.ts",
       "accessCount": 6,
       "lastAccessed": 1774917756572,
       "type": "file"
-    },
-    {
-      "path": "src\\api\\main.py",
-      "accessCount": 6,
-      "lastAccessed": 1774920900572,
-      "type": "directory"
     },
     {
       "path": "frontend\\src",
@@ -455,6 +455,12 @@
       "type": "file"
     },
     {
+      "path": "frontend\\vite.config.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774924321341,
+      "type": "file"
+    },
+    {
       "path": "src\\crew\\crews\\content_crew.py",
       "accessCount": 2,
       "lastAccessed": 1774916742567,
@@ -482,6 +488,12 @@
       "path": "frontend\\tsconfig.app.json",
       "accessCount": 2,
       "lastAccessed": 1774919089234,
+      "type": "file"
+    },
+    {
+      "path": "src\\api\\routes\\onboarding.py",
+      "accessCount": 2,
+      "lastAccessed": 1774924295437,
       "type": "file"
     },
     {
@@ -563,12 +575,6 @@
       "type": "file"
     },
     {
-      "path": "frontend\\vite.config.ts",
-      "accessCount": 1,
-      "lastAccessed": 1774919074621,
-      "type": "file"
-    },
-    {
       "path": "src\\schemas\\taste_profile.py",
       "accessCount": 1,
       "lastAccessed": 1774920417765,
@@ -581,9 +587,51 @@
       "type": "file"
     },
     {
-      "path": "src\\api\\routes\\onboarding.py",
+      "path": ".gstack\\qa-reports\\screenshots\\01-landing.png",
       "accessCount": 1,
-      "lastAccessed": 1774920810028,
+      "lastAccessed": 1774924149362,
+      "type": "file"
+    },
+    {
+      "path": ".gstack\\qa-reports\\screenshots\\02-crews.png",
+      "accessCount": 1,
+      "lastAccessed": 1774924194975,
+      "type": "file"
+    },
+    {
+      "path": ".gstack\\qa-reports\\screenshots\\02-review.png",
+      "accessCount": 1,
+      "lastAccessed": 1774924231256,
+      "type": "file"
+    },
+    {
+      "path": "src\\api",
+      "accessCount": 1,
+      "lastAccessed": 1774924269507,
+      "type": "directory"
+    },
+    {
+      "path": ".gstack\\qa-reports\\screenshots\\03-content-create.png",
+      "accessCount": 1,
+      "lastAccessed": 1774924390614,
+      "type": "file"
+    },
+    {
+      "path": ".gstack\\qa-reports\\screenshots\\04-publish.png",
+      "accessCount": 1,
+      "lastAccessed": 1774924424458,
+      "type": "file"
+    },
+    {
+      "path": ".gstack\\qa-reports\\screenshots\\04-search.png",
+      "accessCount": 1,
+      "lastAccessed": 1774924428769,
+      "type": "file"
+    },
+    {
+      "path": ".gstack\\qa-reports\\qa-report-2026-03-31.md",
+      "accessCount": 1,
+      "lastAccessed": 1774924524401,
       "type": "file"
     }
   ],
