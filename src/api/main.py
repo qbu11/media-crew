@@ -48,15 +48,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         settings.API_PORT,
     )
 
-    # Initialize database tables
+    # Initialize database tables (non-blocking)
     try:
         from src.models.base import Base
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
         logger.info("Database tables initialized")
     except Exception as e:
-        logger.error("Database initialization failed: %s", e)
-        raise
+        logger.warning("Database initialization failed (non-blocking): %s", e)
 
     # Try to start scheduler, but don't block if it fails
     try:
