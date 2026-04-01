@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient'
 import { AppLayout } from './components/layout/AppLayout'
@@ -22,7 +22,7 @@ import { PublishPage } from './pages/PublishPage'
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           {/* Landing Page — 独立布局，不走 AppLayout */}
           <Route index element={<LandingPage />} />
@@ -49,7 +49,7 @@ export default function App() {
             <Route path="clients/:id" element={<ClientDetailPage />} />
           </Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   )
 }
