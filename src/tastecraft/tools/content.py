@@ -81,3 +81,128 @@ class SaveDraftTool(BaseTool):
                     "quality_score": quality_score,
                 },
             )
+
+
+class ReviewContentTool(BaseTool):
+    """
+    Agent self-reviews a content draft and returns structured feedback.
+
+    The agent acts as a quality reviewer, scoring the content against:
+    - Relevance to topic
+    - Tone consistency with taste profile
+    - Structural quality (hook, body, CTA)
+    - Platform fit
+    - Engagement potential
+    """
+
+    name = "review_content"
+    description = (
+        "Review a content draft and return structured quality feedback. "
+        "Provide scores (0-10) for relevance, tone, structure, platform_fit, "
+        "engagement, plus a recommendation (accept/revise/reject) and specific "
+        "feedback notes. Use this when you want to evaluate a draft before publishing."
+    )
+    input_schema = {
+        "type": "object",
+        "properties": {
+            "title": {"type": "string", "description": "The content title"},
+            "body": {"type": "string", "description": "The content body text"},
+            "hashtags": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "List of hashtags",
+            },
+        },
+        "required": ["title", "body"],
+    }
+
+    async def execute(
+        self, title: str, body: str, hashtags: list[str] | None = None
+    ) -> ToolResult:
+        hashtags = hashtags or []
+        # Scoring logic delegated to the agent; here we just structure the tool response
+        return ToolResult(
+            success=True,
+            data={
+                "scores": {},
+                "overall": 0.0,
+                "recommendation": "review_required",
+                "notes": [],
+            },
+            metadata={"tool": self.name},
+        )
+
+
+class AdaptPlatformTool(BaseTool):
+    """
+    Adapt a content draft for a specific platform (xiaohongshu or wechat).
+
+    Handles platform-specific formatting, length constraints, and style adjustments.
+    """
+
+    name = "adapt_platform"
+    description = (
+        "Adapt a content draft for a specific platform (xiaohongshu or wechat). "
+        "Converts the draft to platform-specific format with appropriate length, "
+        "formatting, and style adjustments. Returns the adapted content."
+    )
+    input_schema = {
+        "type": "object",
+        "properties": {
+            "title": {"type": "string", "description": "Original title"},
+            "body": {"type": "string", "description": "Original body text"},
+            "hashtags": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Original hashtags",
+            },
+            "platform": {
+                "type": "string",
+                "enum": ["xiaohongshu", "wechat"],
+                "description": "Target platform",
+            },
+        },
+        "required": ["title", "body", "platform"],
+    }
+
+    async def execute(
+        self,
+        title: str,
+        body: str,
+        platform: str,
+        hashtags: list[str] | None = None,
+    ) -> ToolResult:
+        hashtags = hashtags or []
+
+        if platform == "xiaohongshu":
+            adapted = self._adapt_xhs(title, body, hashtags)
+        else:
+            adapted = self._adapt_wechat(title, body, hashtags)
+
+        return ToolResult(
+            success=True,
+            data={"platform": platform, "adapted": adapted},
+            metadata={"tool": self.name},
+        )
+
+    def _adapt_xhs(self, title: str, body: str, hashtags: list[str]) -> dict[str, Any]:
+        title = title[:20] if len(title) > 20 else title
+        body = body[:1000] if len(body) > 1000 else body
+        tags = [h.strip("#") for h in hashtags[:8]]
+        return {
+            "title": title,
+            "body": body,
+            "hashtags": tags,
+            "note": "XHS: title truncated to 20 chars, body to 1000 chars, tags to 8",
+        }
+
+    def _adapt_wechat(self, title: str, body: str, hashtags: list[str]) -> dict[str, Any]:
+        digest = body[:120] + "..." if len(body) > 120 else body
+        tags = [h.strip("#") for h in hashtags]
+        return {
+            "title": title[:64],
+            "body": body,
+            "digest": digest,
+            "hashtags": tags,
+            "note": "WeChat: title max 64 chars, digest auto-generated",
+        }
