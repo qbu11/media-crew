@@ -1,0 +1,1 @@
+"""TasteCraft platform tools."""

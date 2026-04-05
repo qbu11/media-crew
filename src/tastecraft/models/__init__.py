@@ -1,0 +1,1 @@
+"""TasteCraft database models."""

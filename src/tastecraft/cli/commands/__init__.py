@@ -1,0 +1,1 @@
+"""TasteCraft CLI commands."""
