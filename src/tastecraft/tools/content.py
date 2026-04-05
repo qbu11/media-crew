@@ -193,16 +193,14 @@ class AdaptPlatformTool(BaseTool):
             "title": title,
             "body": body,
             "hashtags": tags,
-            "note": "XHS: title truncated to 20 chars, body to 1000 chars, tags to 8",
         }
 
     def _adapt_wechat(self, title: str, body: str, hashtags: list[str]) -> dict[str, Any]:
         digest = body[:120] + "..." if len(body) > 120 else body
         tags = [h.strip("#") for h in hashtags]
         return {
-            "title": title[:64],
+            "title": title[:64] if len(title) > 64 else title,
             "body": body,
             "digest": digest,
             "hashtags": tags,
-            "note": "WeChat: title max 64 chars, digest auto-generated",
         }
