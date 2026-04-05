@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typer
 
-from tastecraft.cli.commands import generate, project, taste
+from tastecraft.cli.commands import generate, project, publish, taste
 
 app = typer.Typer(
     name="tastecraft",
@@ -17,6 +17,7 @@ app = typer.Typer(
 app.add_typer(project.app, name="project", help="Manage projects")
 app.add_typer(taste.app, name="taste", help="View/edit taste profiles")
 app.command(name="generate")(generate.generate)
+app.command(name="publish")(publish.publish)
 
 
 @app.callback()
