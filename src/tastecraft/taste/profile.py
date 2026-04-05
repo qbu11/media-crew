@@ -35,6 +35,13 @@ class TasteProfile:
     confidence: float = 0.0
     generation_count: int = 0
 
+    @property
+    def domain(self) -> str:
+        """Derive a search domain from identity for trending search."""
+        if self.identity:
+            return self.identity.strip().split(",")[0].strip()
+        return ""
+
     @classmethod
     def load(cls, project_dir: Path) -> TasteProfile:
         """Load taste profile from project directory."""

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typer
 
-from tastecraft.cli.commands import generate, project, publish, taste
+from tastecraft.cli.commands import daemon, generate, project, publish, run, schedule, taste
 
 app = typer.Typer(
     name="tastecraft",
@@ -16,8 +16,11 @@ app = typer.Typer(
 # Register sub-commands
 app.add_typer(project.app, name="project", help="Manage projects")
 app.add_typer(taste.app, name="taste", help="View/edit taste profiles")
+app.add_typer(schedule.app, name="schedule", help="Manage cron schedules")
 app.command(name="generate")(generate.generate)
 app.command(name="publish")(publish.publish)
+app.command(name="run")(run.run_pipeline)
+app.add_typer(daemon.app, name="daemon", help="Start/stop scheduler daemon")
 
 
 @app.callback()

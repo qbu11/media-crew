@@ -199,3 +199,12 @@ def _create_default_schedule(project_dir: Path) -> None:
     }
     with open(project_dir / "schedule.yaml", "w", encoding="utf-8") as f:
         yaml.dump(schedule, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
+
+
+def _edit_file(path: Path) -> None:
+    """Open a file in the user's preferred editor."""
+    import os
+    import subprocess
+
+    editor = os.environ.get("EDITOR", "code")
+    subprocess.run([editor, str(path)], check=False)
