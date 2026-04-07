@@ -43,8 +43,9 @@ class TasteProfile:
         return ""
 
     @classmethod
-    def load(cls, project_dir: Path) -> TasteProfile:
+    def load(cls, project_dir: Path | str) -> TasteProfile:
         """Load taste profile from project directory."""
+        project_dir = Path(project_dir)
         taste_path = project_dir / "taste.yaml"
         learned_path = project_dir / "taste_learned.json"
 
@@ -82,8 +83,9 @@ class TasteProfile:
 
         return profile
 
-    def save_explicit(self, project_dir: Path) -> None:
+    def save_explicit(self, project_dir: Path | str) -> None:
         """Save explicit dimensions to taste.yaml."""
+        project_dir = Path(project_dir)
         data = {
             "project": self.project,
             "identity": self.identity,
@@ -99,8 +101,9 @@ class TasteProfile:
         with open(taste_path, "w", encoding="utf-8") as f:
             yaml.dump(data, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
 
-    def save_learned(self, project_dir: Path) -> None:
+    def save_learned(self, project_dir: Path | str) -> None:
         """Save implicit dimensions to taste_learned.json."""
+        project_dir = Path(project_dir)
         import json
         learned = {**self.learned}
         learned["_confidence"] = self.confidence

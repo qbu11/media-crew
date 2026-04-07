@@ -36,8 +36,8 @@ class Settings(BaseSettings):
     max_tokens: int = 8192
     max_turns: int = 20
 
-    # Database
-    database_url: str = ""
+    # Database — use TASTECRAFT_DATABASE_URL env var to override
+    database_url: str = Field(default="", validation_alias="TASTECRAFT_DATABASE_URL")
 
     # Logging
     log_level: str = "INFO"

@@ -41,6 +41,9 @@ async def init_db(database_url: str) -> None:
     _engine = create_async_engine(database_url, echo=False)
     _session_factory = async_sessionmaker(_engine, expire_on_commit=False)
 
+    # Import models to register them with Base.metadata before create_all
+    from tastecraft.models import tables  # noqa: F401
+
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

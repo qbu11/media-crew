@@ -105,18 +105,54 @@ async def _run_generate(
     )
 
     if result.success:
+        # Auto-save to DB
+        saved_id = await _save_result(result.output, project_id)
+
         if print_mode:
             print(result.output)
         else:
             console.print(Panel(result.output, title="Generated Content", border_style="green"))
+            extra = f" | Saved as content #{saved_id}" if saved_id else ""
             console.print(
                 f"\n[dim]Completed in {result.turns} turns, "
                 f"{result.tool_calls} tool calls, "
-                f"{result.elapsed_seconds:.1f}s[/dim]"
+                f"{result.elapsed_seconds:.1f}s{extra}[/dim]"
             )
     else:
         console.print(f"[red]Generation failed: {result.output}[/red]")
         raise typer.Exit(1)
+
+
+async def _save_result(output: str, project_id: str) -> int | None:
+    """Parse agent output and save as draft content."""
+    from tastecraft.models.base import get_session
+    from tastecraft.models.tables import Content
+
+    if not output.strip():
+        return None
+
+    # Extract title from first line (typically **Title** or # Title)
+    lines = output.strip().split("\n")
+    title = lines[0].strip().lstrip("#* ").rstrip("*")
+    if not title:
+        title = f"Untitled ({project_id})"
+
+    try:
+        session = await get_session()
+        async with session:
+            content = Content(
+                project_id=project_id,
+                title=title[:200],
+                body=output,
+                status="draft",
+                quality_score=0.0,
+            )
+            session.add(content)
+            await session.commit()
+            await session.refresh(content)
+            return content.id
+    except Exception:
+        return None
 
 
 def _build_content_context(topic: str, mode: str) -> str:

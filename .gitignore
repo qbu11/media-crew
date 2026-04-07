@@ -133,6 +133,14 @@ temp/
 .omc/
 .chats/
 
+# Claude Code
+.claude/
+
+# Docs build artifacts
+docs/node_modules/
+docs/package*.json
+docs/tastecraft-report.js
+
 # Temporary artifacts (screenshots, generated images, etc.)
 screenshots/
 generated_images/
