@@ -2,24 +2,35 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 import json
 import logging
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
 
-from tastecraft.core.agent_loop import agent_loop, AgentResult
+from tastecraft.core.agent_loop import AgentResult, agent_loop
 from tastecraft.core.config import Settings, get_settings
 from tastecraft.models.base import get_session
-from tastecraft.models.tables import AnalyticsSnapshot, Content, ContentRevision, EvolutionLog, PublishLog
+from tastecraft.models.tables import (
+    AnalyticsSnapshot,
+    Content,
+    ContentRevision,
+    EvolutionLog,
+    PublishLog,
+)
 from tastecraft.taste.profile import TasteProfile
 from tastecraft.taste.prompt_builder import build_pipeline_prompt
 from tastecraft.tools.base import ToolRegistry
 from tastecraft.tools.notification import NotifyFeishuTool
 
 logger = logging.getLogger(__name__)
+
+# Explicit dimensions that must never be auto-modified by evolution
+EXPLICIT_FIELDS = frozenset({
+    "identity", "tone", "audience", "taboos", "catchphrases",
+    "content_goal", "project", "benchmarks", "platforms",
+})
 
 
 async def run_evolution_pipeline(project_id: str, trigger: str = "weekly") -> dict[str, Any]:
@@ -41,7 +52,7 @@ async def run_evolution_pipeline(project_id: str, trigger: str = "weekly") -> di
     profile = TasteProfile.load(project_dir)
 
     # Aggregate signals
-    week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     signals = await _aggregate_signals(project_id, week_ago)
 
     if not signals:
@@ -126,7 +137,7 @@ async def _evolve(
     user_msg = (
         f"Analyze these evolution signals and propose taste profile updates:\n\n"
         f"Signals:\n{json.dumps(signals, ensure_ascii=False, indent=2)}\n\n"
-        f"Current implicit dimensions:\n{json.dumps(profile.implicit, ensure_ascii=False, indent=2)}\n\n"
+        f"Current learned dimensions:\n{json.dumps(profile.learned, ensure_ascii=False, indent=2)}\n\n"
         "Propose up to 3 dimension changes. Output JSON."
     )
 
@@ -144,7 +155,7 @@ async def _evolve(
     )
 
     # Apply changes
-    taste_before = dict(profile.implicit)
+    taste_before = dict(profile.learned)
     changes_made = {}
 
     if result.success:
@@ -156,8 +167,8 @@ async def _evolve(
 
             for change in changes[:3]:
                 dim = change.get("dimension", "")
-                if dim and dim not in profile.explicit:
-                    profile.implicit[dim] = change.get("new_value")
+                if dim and dim not in EXPLICIT_FIELDS:
+                    profile.learned[dim] = change.get("new_value")
                     changes_made[dim] = {
                         "old": taste_before.get(dim),
                         "new": change.get("new_value"),
@@ -166,7 +177,7 @@ async def _evolve(
                     }
 
             profile.confidence = min(1.0, profile.confidence + confidence_delta)
-            profile.implicit["_last_evolved"] = datetime.now(timezone.utc).isoformat()
+            profile.learned["_last_evolved"] = datetime.now(UTC).isoformat()
             profile.save_learned(project_dir)
 
         except (json.JSONDecodeError, KeyError):
@@ -181,7 +192,7 @@ async def _evolve(
             signals_input=signals,
             changes_made=changes_made,
             taste_before=taste_before,
-            taste_after=dict(profile.implicit),
+            taste_after=dict(profile.learned),
             confidence_delta=changes_made.get("_delta", 0.0),
         )
         session.add(log)

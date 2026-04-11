@@ -3,22 +3,21 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import select, update
 
-from tastecraft.core.agent_loop import agent_loop, AgentResult
+from tastecraft.core.agent_loop import AgentResult, agent_loop
 from tastecraft.core.config import Settings, get_settings
 from tastecraft.models.base import get_session
 from tastecraft.models.tables import Content, PublishLog
-from tastecraft.taste.prompt_builder import build_pipeline_prompt
 from tastecraft.taste.profile import TasteProfile
+from tastecraft.taste.prompt_builder import build_pipeline_prompt
 from tastecraft.tools.base import ToolRegistry
 from tastecraft.tools.content import AdaptPlatformTool
 from tastecraft.tools.notification import NotifyFeishuTool
-from tastecraft.tools.platform.xiaohongshu import PublishXiaohongshuTool
 from tastecraft.tools.platform.wechat import PublishWechatTool
+from tastecraft.tools.platform.xiaohongshu import PublishXiaohongshuTool
 
 logger = logging.getLogger(__name__)
 
@@ -123,21 +122,36 @@ async def _publish_one(
         api_key=settings.anthropic_api_key or None,
     )
 
-    # Update content status
+    # Update content status and create PublishLog records
+    new_status = "published" if result.success else "failed"
+    platforms_published: list[str] = list(profile.platforms.keys()) if result.success else []
+
     session = await get_session()
     async with session:
-        new_status = "published" if result.success else "failed"
         await session.execute(
             update(Content)
             .where(Content.id == content.id)
             .values(status=new_status)
         )
+
+        # Create a PublishLog entry per platform
+        for platform in platforms_published or ["unknown"]:
+            pub_log = PublishLog(
+                content_id=content.id,
+                platform=platform,
+                status="success" if result.success else "failed",
+                adapted_content={"output_preview": result.output[:500]},
+                error_message="" if result.success else result.output[:500],
+            )
+            session.add(pub_log)
+
         await session.commit()
 
     return {
         "content_id": content.id,
         "title": content.title,
         "success": result.success,
+        "platforms": platforms_published,
         "turns": result.turns,
         "tool_calls": result.tool_calls,
         "elapsed": result.elapsed_seconds,

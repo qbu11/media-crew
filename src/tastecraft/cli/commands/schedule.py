@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import asyncio
-
-import typer
 from rich.console import Console
 from rich.table import Table
+import typer
 
 app = typer.Typer(no_args_is_help=True)
 console = Console()
@@ -28,10 +26,11 @@ def list_schedules(ctx: typer.Context) -> None:
     rules = load_schedule_rules(project_id)
 
     table = Table(title=f"Schedules: {project_id}")
-    table.add_column("Pipeline", style="bold")
+    table.add_column("Name", style="bold")
+    table.add_column("Pipeline")
     table.add_column("Cron")
-    for name, cron_expr in rules.items():
-        table.add_row(name, cron_expr)
+    for rule in rules:
+        table.add_row(rule["name"], rule["pipeline"], rule["cron"])
     console.print(table)
 
 

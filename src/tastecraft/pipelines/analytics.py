@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+import json
 import logging
-from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 
-from tastecraft.core.agent_loop import agent_loop, AgentResult
+from tastecraft.core.agent_loop import AgentResult, agent_loop
 from tastecraft.core.config import Settings, get_settings
 from tastecraft.models.base import get_session
 from tastecraft.models.tables import AnalyticsSnapshot, Content, PublishLog
@@ -16,8 +17,8 @@ from tastecraft.taste.profile import TasteProfile
 from tastecraft.taste.prompt_builder import build_pipeline_prompt
 from tastecraft.tools.base import ToolRegistry
 from tastecraft.tools.notification import NotifyFeishuTool
-from tastecraft.tools.platform.xiaohongshu import CollectXiaohongshuMetricsTool
 from tastecraft.tools.platform.wechat import CollectWechatMetricsTool
+from tastecraft.tools.platform.xiaohongshu import CollectXiaohongshuMetricsTool
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,6 @@ async def run_analytics_pipeline(project_id: str) -> list[dict[str, Any]]:
     5. Send Feishu summary if T+7d
     """
     settings = get_settings()
-    project_dir = settings.project_dir(project_id)
-    profile = TasteProfile.load(project_dir)
 
     snapshots = await _collect_pending(settings, project_id)
     if not snapshots:
@@ -53,7 +52,7 @@ async def run_analytics_pipeline(project_id: str) -> list[dict[str, Any]]:
 
 
 async def _collect_pending(
-    settings: Settings,
+    _settings: Settings,
     project_id: str,
 ) -> list[tuple[int, int, str, str]]:
     """
@@ -61,7 +60,7 @@ async def _collect_pending(
     that are due for collection.
     """
     session = await get_session()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     items: list[tuple[int, int, str, str]] = []
     async with session:
@@ -140,20 +139,23 @@ async def _collect_one(
         api_key=settings.anthropic_api_key or None,
     )
 
+    # Parse metrics from agent text output
+    metrics = _parse_metrics(result.output) if result.success else {}
+
     # Save snapshot to DB
     session = await get_session()
     async with session:
         snapshot = AnalyticsSnapshot(
             publish_log_id=pub_id,
             snapshot_type=snapshot_type,
-            views=result.data.get("views", 0) if result.success else 0,
-            likes=result.data.get("likes", 0) if result.success else 0,
-            comments=result.data.get("comments", 0) if result.success else 0,
-            shares=result.data.get("shares", 0) if result.success else 0,
-            saves=result.data.get("saves", 0) if result.success else 0,
-            new_followers=result.data.get("new_followers", 0) if result.success else 0,
-            engagement_rate=result.data.get("engagement_rate", 0.0) if result.success else 0.0,
-            raw_data=result.data or {},
+            views=metrics.get("views", 0),
+            likes=metrics.get("likes", 0),
+            comments=metrics.get("comments", 0),
+            shares=metrics.get("shares", 0),
+            saves=metrics.get("saves", 0),
+            new_followers=metrics.get("new_followers", 0),
+            engagement_rate=metrics.get("engagement_rate", 0.0),
+            raw_data=metrics if metrics else {"raw_output": result.output[:2000]},
         )
         session.add(snapshot)
         await session.commit()
@@ -164,3 +166,40 @@ async def _collect_one(
         "success": result.success,
         "elapsed": result.elapsed_seconds,
     }
+
+
+def _parse_metrics(output: str) -> dict[str, Any]:
+    """Parse metrics dict from agent text output.
+
+    Tries to extract a JSON object from the output. Looks for ```json blocks
+    first, then falls back to parsing the entire output as JSON.
+    """
+    # Try ```json ... ``` block
+    if "```json" in output:
+        try:
+            json_str = output.split("```json")[-1].split("```")[0].strip()
+            return json.loads(json_str)
+        except (json.JSONDecodeError, IndexError):
+            pass
+
+    # Try parsing entire output as JSON
+    try:
+        parsed = json.loads(output.strip())
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+
+    # Try finding a JSON object in the output
+    for start_idx in range(len(output)):
+        if output[start_idx] == "{":
+            for end_idx in range(len(output) - 1, start_idx, -1):
+                if output[end_idx] == "}":
+                    try:
+                        return json.loads(output[start_idx : end_idx + 1])
+                    except json.JSONDecodeError:
+                        break
+            break
+
+    logger.warning("Could not parse metrics from agent output: %s", output[:200])
+    return {}

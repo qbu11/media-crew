@@ -3,21 +3,18 @@
 from __future__ import annotations
 
 import logging
-import subprocess
-from datetime import datetime, timezone
-from pathlib import Path
+from typing import Any
 
-import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+import yaml
 
 from tastecraft.core.config import get_settings
-from tastecraft.models.base import get_session
-from tastecraft.models.tables import ScheduleRule
 from tastecraft.pipelines.analytics import run_analytics_pipeline
+from tastecraft.pipelines.content import run_content_pipeline
 from tastecraft.pipelines.evolution import run_evolution_pipeline
 from tastecraft.pipelines.publish import run_publish_pipeline
-from sqlalchemy import select
+from tastecraft.pipelines.trending import run_trending_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +28,11 @@ PIPELINE_COMMANDS = {
 }
 
 PIPELINE_HANDLERS = {
-    "content": None,  # handled by generate command
+    "content": run_content_pipeline,
     "publish": run_publish_pipeline,
     "analytics": run_analytics_pipeline,
     "evolution": run_evolution_pipeline,
-    "trending": None,  # handled by trending pipeline
+    "trending": run_trending_pipeline,
 }
 
 DEFAULT_SCHEDULE = {
@@ -47,19 +44,34 @@ DEFAULT_SCHEDULE = {
 }
 
 
-def load_schedule_rules(project_id: str) -> dict[str, str]:
-    """Load schedule rules from project's schedule.yaml."""
+def load_schedule_rules(project_id: str) -> list[dict[str, str]]:
+    """Load schedule rules from project's schedule.yaml.
+
+    Returns a list of dicts, each with 'name', 'pipeline', and 'cron' keys.
+    This supports multiple entries mapping to the same pipeline (e.g. publish-batch-1/2/3).
+    """
     settings = get_settings()
     schedule_file = settings.project_dir(project_id) / "schedule.yaml"
 
-    rules = dict(DEFAULT_SCHEDULE)  # start with defaults
+    # Build rules from defaults first
+    rules: list[dict[str, str]] = [
+        {"name": pipeline, "pipeline": pipeline, "cron": cron}
+        for pipeline, cron in DEFAULT_SCHEDULE.items()
+    ]
+
     if schedule_file.exists():
-        with open(schedule_file, encoding="utf-8") as f:
+        with schedule_file.open(encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
             schedules = data.get("schedules", {})
-            for name, cfg in schedules.items():
-                if isinstance(cfg, dict) and cfg.get("enabled", True):
-                    rules[name] = cfg.get("cron", DEFAULT_SCHEDULE.get(name, ""))
+            if schedules:
+                # Override defaults with file entries
+                rules = []
+                for name, cfg in schedules.items():
+                    if isinstance(cfg, dict) and cfg.get("enabled", True):
+                        pipeline = cfg.get("pipeline", name)
+                        cron = cfg.get("cron", DEFAULT_SCHEDULE.get(pipeline, ""))
+                        if cron:
+                            rules.append({"name": name, "pipeline": pipeline, "cron": cron})
 
     return rules
 
@@ -73,13 +85,15 @@ def export_cron(project_id: str) -> str:
     rules = load_schedule_rules(project_id)
     lines = [f"# --- Project: {project_id} ---"]
 
-    for pipeline, cron_expr in rules.items():
+    for rule in rules:
+        pipeline = rule["pipeline"]
+        cron_expr = rule["cron"]
         cmd = PIPELINE_COMMANDS.get(pipeline, pipeline)
-        log_file = settings.logs_dir / project_id / f"{pipeline}.log"
+        log_file = settings.logs_dir / project_id / f"{rule['name']}.log"
         log_file.parent.mkdir(parents=True, exist_ok=True)
 
         entry = (
-            f"{_cron_minute(cron_expr)} { _cron_hour(cron_expr)} "
+            f"{_cron_minute(cron_expr)} {_cron_hour(cron_expr)} "
             f"{_cron_dom(cron_expr)} {_cron_month(cron_expr)} {_cron_dow(cron_expr)} "
             f"tastecraft run {cmd} -p {project_id} --print >> {log_file} 2>&1"
         )
@@ -129,7 +143,9 @@ class TasteCraftScheduler:
             project_id = project_dir.name
             rules = load_schedule_rules(project_id)
 
-            for pipeline, cron_expr in rules.items():
+            for rule in rules:
+                pipeline = rule["pipeline"]
+                cron_expr = rule["cron"]
                 parts = cron_expr.split()
                 if len(parts) != 5:
                     continue
@@ -150,11 +166,11 @@ class TasteCraftScheduler:
                         handler,
                         trigger=trigger,
                         args=[project_id],
-                        id=f"{project_id}_{pipeline}",
+                        id=f"{project_id}_{rule['name']}",
                         replace_existing=True,
                         misfire_grace_time=3600,
                     )
-                    logger.info("Registered job: %s_%s (%s)", project_id, pipeline, cron_expr)
+                    logger.info("Registered job: %s_%s (%s)", project_id, rule["name"], cron_expr)
 
     async def start(self) -> None:
         """Start the scheduler daemon."""

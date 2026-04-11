@@ -5,12 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 
-import typer
 from rich.console import Console
+import typer
 
 console = Console()
-
-_PIPELINE_HANDLERS = {}
 
 
 def run_pipeline(
@@ -63,35 +61,8 @@ async def _run(settings: object, project_id: str, pipeline: str, print_mode: boo
         results = [await run_trending_pipeline(project_id)]
 
     elif pipeline == "content":
-        from tastecraft.core.agent_loop import agent_loop
-        from tastecraft.taste.profile import TasteProfile
-        from tastecraft.taste.prompt_builder import build_pipeline_prompt
-        from tastecraft.tools.base import ToolRegistry
-        from tastecraft.tools.content import SaveDraftTool
-        from tastecraft.tools.search import SearchTrendingTool, ReadContentHistoryTool
-
-        profile = TasteProfile.load(settings.project_dir(project_id))
-        registry = ToolRegistry()
-        registry.register(SaveDraftTool(project_id=project_id))
-        registry.register(SearchTrendingTool(project_id=project_id))
-        registry.register(ReadContentHistoryTool(project_id=project_id))
-
-        system_prompt = build_pipeline_prompt(profile, pipeline_name="content")
-        user_msg = (
-            "Select a trending topic that fits my taste profile, "
-            "then generate a high-quality content draft. "
-            "Save the draft using the save_draft tool."
-        )
-        result = await agent_loop(
-            system_prompt=system_prompt,
-            tools=registry,
-            initial_message=user_msg,
-            model=settings.default_model,
-            max_tokens=settings.max_tokens,
-            max_turns=settings.max_turns,
-            api_key=settings.anthropic_api_key or None,
-        )
-        results = [{"success": result.success, "output": result.output[:200]}]
+        from tastecraft.pipelines.content import run_content_pipeline
+        results = [await run_content_pipeline(project_id)]
 
     if print_mode:
         print(json.dumps(results, ensure_ascii=False, default=str))
